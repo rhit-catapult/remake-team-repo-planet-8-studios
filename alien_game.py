@@ -10,7 +10,7 @@ def main():
     pygame.init()
 
     # create a screen
-    pygame.display.set_caption("Cool Project")
+    pygame.display.set_caption("Planet-8 Studios")
     # TODO: Change the size of the screen as you see fit!
     screen = pygame.display.set_mode((640, 480))
     # creates a Character from the my_character.py file
