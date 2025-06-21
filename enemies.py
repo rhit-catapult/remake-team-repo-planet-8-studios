@@ -3,16 +3,32 @@ import sys
 
 
 class Badguy:
-    def __init__(self, screen: pygame.Surface, x, y, speed):
+    def __init__(self, screen: pygame.Surface, x, y):
         self.screen = screen
         self.x = x
         self.y = y
-        self.speed = speed
+        self.speed_x = 0.5
+
+
+    def move(self):
+        self.x = self.speed_x + self.x
+        self.speed_x = self.speed_x
+        if self.x >710 or self.x < 00:
+            self.speed_x = -self.speed_x
 
     def draw(self):
         pygame.draw.rect(self.screen, "blue", (self.x, self.y, 20, 20))
         pygame.draw.circle(self.screen, "red", (self.x + 5, self.y + 5), 3)
         pygame.draw.circle(self.screen, "red", (self.x + 15, self.y + 5), 3)
+
+def main(self):
+    pygame.init()
+    screen = pygame.display.set_mode((720, 560))
+    pygame.display.set_caption("Planet-8 Studios")
+    screen.fill("white")
+    clock = pygame.time.Clock()
+    badguy = Badguy(screen, 400, 400)
+
 
 
 # This function is called when you run this file, and is used to test the Character class individually.
@@ -20,15 +36,20 @@ class Badguy:
 # change it to properly test that class
 def test_character():
     # TODO: change this function to test your class
-    screen = pygame.display.set_mode((640, 480))
-    character = Badguy(screen, 400, 400, 6)
+    screen = pygame.display.set_mode((720, 560))
+    character = Badguy(screen, 400, 400)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
+
+
+
+
         screen.fill("white")
         character.draw()
+        character.move()
         pygame.display.update()
 
 
@@ -36,3 +57,4 @@ def test_character():
 # click the green arrow to the left or run "Current File" in PyCharm to test this class
 if __name__ == "__main__":
     test_character()
+    main()
