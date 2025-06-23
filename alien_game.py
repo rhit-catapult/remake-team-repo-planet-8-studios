@@ -23,6 +23,11 @@ def main():
     IMAGE_HEIGHT = 80
     IMAGE_WIDTH = 56
 
+    jumping = False
+    velocity_y = 0
+    gravity = 0.5
+    jump_strength = -10
+
     alien.stand = pygame.transform.scale(alien.stand, (IMAGE_WIDTH, IMAGE_HEIGHT))
 
     while True:
@@ -39,6 +44,8 @@ def main():
             alien.x = alien.x+2
         if pressed_keys[pygame.K_UP]:
             alien.y = alien.y-2
+            time.sleep(1)
+            alien.y = alien.y+2
         if pressed_keys[pygame.K_DOWN]:
             alien.y = alien.y+2
         # TODO: Fill the screen with whatever background color you like!
