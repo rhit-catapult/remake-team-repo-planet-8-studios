@@ -1,4 +1,5 @@
 from Alien import Alien
+from Platform import Platform
 import pygame
 import sys
 import my_character
@@ -23,12 +24,13 @@ def main():
     IMAGE_HEIGHT = 80
     IMAGE_WIDTH = 56
 
-    jumping = False
-    velocity_y = 0
-    gravity = 0.5
-    jump_strength = -10
-
     alien.stand = pygame.transform.scale(alien.stand, (IMAGE_WIDTH, IMAGE_HEIGHT))
+
+    gravity = 0.3
+    jump_speed = -14
+    velocity_y = 0
+    is_jumping = False
+    ground_y = 400
 
     while True:
         clock.tick(60)  # this sets the framerate of your game
@@ -43,11 +45,20 @@ def main():
         if pressed_keys[pygame.K_RIGHT]:
             alien.x = alien.x+2
         if pressed_keys[pygame.K_UP]:
-            alien.y = alien.y-2
-            time.sleep(1)
-            alien.y = alien.y+2
-        if pressed_keys[pygame.K_DOWN]:
-            alien.y = alien.y+2
+            if not is_jumping:
+                velocity_y = jump_speed
+                is_jumping = True
+
+            # apply gravity
+        velocity_y += gravity
+        alien.y += velocity_y
+
+        # check if on ground
+        if alien.y >= ground_y:
+            alien.y = ground_y
+            is_jumping = False
+            velocity_y = 0
+
         # TODO: Fill the screen with whatever background color you like!
         screen.fill((255, 255, 255))
 
