@@ -2,7 +2,7 @@ from Alien import Alien
 from Platform import Platform
 import pygame
 import sys
-import my_character
+import alien
 import random
 import time
 
@@ -13,9 +13,9 @@ def main():
     # create a screen
     pygame.display.set_caption("Planet-8 Studios")
     # TODO: Change the size of the screen as you see fit!
-    screen = pygame.display.set_mode((640, 480))
-    # creates a Character from the my_character.py file
-    character = my_character.Character(screen, 100, 100)
+    screen = pygame.display.set_mode((720, 560))
+    # creates a Character from the alien.py file
+    character = alien.Character(screen, 100, 100)
 
     # let's set the framerate
     clock = pygame.time.Clock()

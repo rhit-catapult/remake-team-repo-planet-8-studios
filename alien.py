@@ -19,7 +19,7 @@ class Character:
 # change it to properly test that class
 def test_character():
     # TODO: change this function to test your class
-    screen = pygame.display.set_mode((640, 480))
+    screen = pygame.display.set_mode((720, 560))
     character = Character(screen, 400, 400)
     while True:
         for event in pygame.event.get():
