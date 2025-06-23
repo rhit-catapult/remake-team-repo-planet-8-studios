@@ -13,8 +13,12 @@ def main():
     screen = pygame.display.set_mode((720, 560))
 
     # Image dimensions
-    IMAGE_HEIGHT = 80
-    IMAGE_WIDTH = 56
+    STAND_HEIGHT = 80
+    STAND_WIDTH = 56
+    LR_HEIGHT = 80
+    LR_WIDTH = 56
+    LR_HEIGHT = 80
+    LR_WIDTH = 56
 
     # Try loading the alien
     try:
@@ -34,7 +38,7 @@ def main():
         sys.exit()
 
     # Optionally scale the standing image (others can be scaled similarly if needed)
-    my_alien.stand = pygame.transform.scale(my_alien.stand, (IMAGE_WIDTH, IMAGE_HEIGHT))
+    my_alien.stand = pygame.transform.scale(my_alien.stand, (STAND_WIDTH, STAND_HEIGHT))
 
     # Framerate
     clock = pygame.time.Clock()
@@ -65,8 +69,10 @@ def main():
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[pygame.K_LEFT]:
             my_alien.x -= 2
+            my_alien.direction = 'left'
         if pressed_keys[pygame.K_RIGHT]:
             my_alien.x += 2
+            my_alien.direction = 'right'
         if pressed_keys[pygame.K_UP] and not is_jumping:
             velocity_y = jump_speed
             is_jumping = True
@@ -77,11 +83,11 @@ def main():
 
         # Collision check
         on_obstacle = False
-        alien_rect = pygame.Rect(my_alien.x, my_alien.y, IMAGE_WIDTH, IMAGE_HEIGHT)
+        alien_rect = pygame.Rect(my_alien.x, my_alien.y, STAND_WIDTH, STAND_HEIGHT)
         for obstacle in obstacles:
             if alien_rect.colliderect(obstacle) and velocity_y >= 0:
                 if alien_rect.bottom >= obstacle.top and alien_rect.bottom - velocity_y < obstacle.top + 5:
-                    my_alien.y = obstacle.top - IMAGE_HEIGHT
+                    my_alien.y = obstacle.top - STAND_HEIGHT
                     velocity_y = 0
                     is_jumping = False
                     on_obstacle = True

@@ -15,4 +15,9 @@ class Alien:
     def draw(self):
         """ Draws this sprite onto the screen. """
         #inserts hero at its position
-        self.screen.blit(self.stand, (self.x, self.y))
+        if self.direction == 'neutral':
+            self.screen.blit(self.stand, (self.x, self.y))
+        elif self.direction == 'left':
+            self.screen.blit(self.l_run, (self.x, self.y))
+        elif self.direction == 'right':
+            self.screen.blit(self.r_run, (self.x, self.y))
