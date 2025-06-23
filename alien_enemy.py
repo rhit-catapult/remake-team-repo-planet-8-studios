@@ -3,7 +3,7 @@ import sys
 import random
 import time
 from alien import Alien
-from enemies import astronaut
+from enemies import Badguy  # assuming Badguy class is defined here
 
 def main():
     # Initialize pygame
@@ -20,11 +20,6 @@ def main():
     LR_WIDTH = 80
     RR_HEIGHT = 80
     RR_WIDTH = 80
-    RL_HEIGHT = 80
-    RL_WIDTH = 80
-    LL_HEIGHT = 80
-    LL_WIDTH = 80
-
 
     # Try loading the alien
     try:
@@ -43,13 +38,25 @@ def main():
         pygame.quit()
         sys.exit()
 
-    # Optionally scale the standing image (others can be scaled similarly if needed)
+    # Optionally scale the standing image
     my_alien.stand = pygame.transform.scale(my_alien.stand, (STAND_WIDTH, STAND_HEIGHT))
     my_alien.l_run = pygame.transform.scale(my_alien.l_run, (LR_WIDTH, LR_HEIGHT))
     my_alien.r_run = pygame.transform.scale(my_alien.r_run, (RR_WIDTH, RR_HEIGHT))
-    my_alien.l_lung = pygame.transform.scale(my_alien.l_lung, (LL_WIDTH, LL_HEIGHT))
-    my_alien.r_lung = pygame.transform.scale(my_alien.r_lung, (RL_WIDTH, RL_HEIGHT))
 
+    # Create astronaut (enemy)
+    left_frames = [
+        "First_Move_Left.png",
+        "Second_Move_Left.png",
+        "Third_Move_Left.png",
+        "Fourth_Move_Left.png"
+    ]
+    right_frames = [
+        "First_Move_Right.png",
+        "Second_Move_Right.png",
+        "Third_Move_Right.png",
+        "Fourth_Move_Right.png"
+    ]
+    astronaut = Badguy(screen, 400, 400, 100, 56, left_frames, right_frames)
 
     # Framerate
     clock = pygame.time.Clock()
@@ -64,7 +71,9 @@ def main():
     # Obstacles
     obstacles = [
         pygame.Rect(50, 490, 50, 4),
-        pygame.Rect(100, 530, 50, 4)
+        pygame.Rect(100, 530, 50, 4),
+        pygame.Rect(600, 400, 50, 50),  # From astronaut code
+        pygame.Rect(100, 400, 50, 50)
     ]
 
     # Game loop
@@ -86,17 +95,9 @@ def main():
             my_alien.direction = 'right'
         if pressed_keys[pygame.K_UP] and not is_jumping:
             velocity_y = jump_speed
-            #is_jumping = True
-        if pressed_keys[pygame.K_a]:
-            my_alien.screen.blit(my_alien.l_lung, (my_alien.x, my_alien.y))
-            my_alien.direction = 'l.attack'
-        if pressed_keys[pygame.K_d]:
-            my_alien.screen.blit(my_alien.r_lung, (my_alien.x, my_alien.y))
-            my_alien.direction = 'r.attack'
-
+            is_jumping = True
         if not any(pressed_keys):
             my_alien.direction = 'neutral'
-
 
         # Apply gravity
         velocity_y += gravity
@@ -124,7 +125,14 @@ def main():
         screen.fill((255, 255, 255))  # Clear screen with white
         for obs in obstacles:
             pygame.draw.rect(screen, "magenta", obs)
+
+        # Update and draw alien
         my_alien.draw()
+
+        # Move and draw astronaut
+        astronaut.move(obstacles)
+        astronaut.draw()
+
         pygame.display.update()
 
 # Only run the game if this file is executed directly
