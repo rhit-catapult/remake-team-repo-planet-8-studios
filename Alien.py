@@ -1,4 +1,5 @@
 import pygame
+import time
 
 class Alien:
     def __init__(self, screen, x, y, standing_filename, left_running_filename, left_lunging_filename, right_running_filename, right_lunging_filename):

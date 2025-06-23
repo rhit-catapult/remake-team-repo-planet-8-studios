@@ -16,9 +16,9 @@ def main():
     STAND_HEIGHT = 80
     STAND_WIDTH = 56
     LR_HEIGHT = 80
-    LR_WIDTH = 56
-    LR_HEIGHT = 80
-    LR_WIDTH = 56
+    LR_WIDTH = 80
+    RR_HEIGHT = 80
+    RR_WIDTH = 80
 
     # Try loading the alien
     try:
@@ -39,6 +39,8 @@ def main():
 
     # Optionally scale the standing image (others can be scaled similarly if needed)
     my_alien.stand = pygame.transform.scale(my_alien.stand, (STAND_WIDTH, STAND_HEIGHT))
+    my_alien.l_run = pygame.transform.scale(my_alien.l_run, (LR_WIDTH, LR_HEIGHT))
+    my_alien.r_run = pygame.transform.scale(my_alien.r_run, (RR_WIDTH, RR_HEIGHT))
 
     # Framerate
     clock = pygame.time.Clock()
@@ -76,6 +78,9 @@ def main():
         if pressed_keys[pygame.K_UP] and not is_jumping:
             velocity_y = jump_speed
             is_jumping = True
+        if not any(pressed_keys):
+            my_alien.direction = 'neutral'
+
 
         # Apply gravity
         velocity_y += gravity
