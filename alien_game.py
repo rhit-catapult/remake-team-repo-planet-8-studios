@@ -3,6 +3,7 @@ import sys
 import random
 import time
 from alien import Alien
+from enemies import astronaut
 
 def main():
     # Initialize pygame
