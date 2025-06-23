@@ -3,23 +3,51 @@ import sys
 
 
 class Badguy:
-    def __init__(self, screen: pygame.Surface, x, y, left_running_filename, right_running_filename, image_height, image_width):
+    def __init__(self, screen: pygame.Surface, x, y, image_height, image_width, left_running_filename, right_running_filename):
         self.screen = screen
         self.x = x
         self.y = y
         self.speed_x = 0.5
-        self.l_run = pygame.image.load(left_running_filename)
-        self.r_run = pygame.image.load(right_running_filename)
         self.image_height = 100
         self.image_width = 56
-        self.l_run = pygame.transform.scale(self.l_run, (self.image_width, self.image_height))
-        self.r_run = pygame.transform.scale(self.r_run, (self.image_width, self.image_height))
+        self.l_walk_frames = [pygame.image.load(f) for f in left_running_filename]
+        self.l_walk_frames = [pygame.transform.scale(img, (self.image_width, self.image_height)) for img in self.l_walk_frames]
+        self.r_walk_frames = [pygame.image.load(f) for f in left_running_filename]
+        self.r_walk_frames = [pygame.transform.scale(img, (self.image_width, self.image_height)) for img in self.l_walk_frames]
+        self.walk_frames = self.r_walk_frames if self.speed_x > 0 else self.l_walk_frames
+        self.current_frame = 0
+        self.animation_delay = 10
+        self.frame_count = 0
+        #self.l_run = pygame.image.load(left_running_filename)
+        #self.r_run = pygame.image.load(right_running_filename)
+        #self.l_run = pygame.transform.scale(self.l_run, (self.image_width, self.image_height))
+        #self.r_run = pygame.transform.scale(self.r_run, (self.image_width, self.image_height))
+        #self.walk_images = [
+            #pygame.image.load("First_Move_Left.png"),
+            #pygame.image.load("Second_Move_Left.png"),
+            #pygame.image.load("Third_Move_Left.png"),
+            #pygame.image.load("Fourth_Move_Left.png")
+
+
+        # Scale all walking images:
+        #self.walk_images = [pygame.transform.scale(img, (self.image_width, self.image_height)) for img in
+                            #self.walk_images]
+
+        self.current_image = 0  # Current frame index
+        self.animation_delay = 10  # Frames to wait before switching image
+        self.frame_count = 0  # Counter to track frame changes
 
     def get_rect(self):
         return pygame.Rect(self.x, self.y, self.image_width, self.image_height)
 
     def check_collision(self):
         return pygame.Rect(self.x, self.y, self.image_width, self.image_height)
+
+    def animate(self):
+        self.frame_count += 1
+        if self.frame_count >= self.animation_delay:
+            self.frame_count = 0
+            self.current_image = ((self.current_image + 1) % len(self.walk_images))
 
     def move(self, obstacles):
         self.x += self.speed_x
@@ -29,10 +57,13 @@ class Badguy:
                 self.speed_x *= -1
                 break
 
-    def draw(self):
-        l_run = pygame.transform.scale(self.l_run, (self.image_width, self.image_height))
-        self.screen.blit(l_run, (self.x, self.y))
+        self.animate()
 
+    def draw(self):
+        #l_run = pygame.transform.scale(self.l_run, (self.image_width, self.image_height))
+        #self.screen.blit(l_run, (self.x, self.y))
+        current_image = self.walk_frames[self.current_frame]
+        self.screen.blit(current_image, (self.x, self.y))
 
 def main(self):
     pygame.init()
