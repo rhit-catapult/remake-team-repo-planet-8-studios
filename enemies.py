@@ -4,10 +4,14 @@ import sys
 
 class Badguy:
     def __init__(self, screen, x, y, image_height, image_width, left_running_filenames, right_running_filenames):
+        # left = ['enemy_left1', 'enemy_left2']
+        # right = ["enemy_right1', 'enemy_right2']
         self.screen = screen
         self.x = x
         self.y = y
         self.speed_x = 2
+        self.speed_y = 2
+        self.gravity = 1
         self.image_height = image_height
         self.image_width = image_width
 
@@ -36,20 +40,42 @@ class Badguy:
 
     def move(self, obstacles):
         self.x += self.speed_x
+        self.y += self.speed_y
+        self.speed_y += self.gravity
+
+        for platform in obstacles:
+            if self.get_rect().colliderect(platform.rect):
+                if (self.speed_y > 0 and self.get_rect().bottom > platform.rect.top and
+                        self.get_rect().bottom < platform.rect.top + 20):
+                    self.get_rect().bottom = platform.rect.top - 20
+                    self.speed_y = 0
+                    on_ground = True
+
         for obstacle in obstacles:
-            if self.get_rect().colliderect(obstacle):
+            if (self.get_rect().colliderect(obstacle.get_rect()) and
+                    abs(self.get_rect().bottom - obstacle.get_rect().top)) > 20:
                 self.speed_x *= -1
                 if self.speed_x > 0:
                     self.walk_frames = self.r_walk_frames
                 else:
                     self.walk_frames = self.l_walk_frames
                 break
+
         self.animate()
+        if 0 > self.x  or self.x > self.screen.get_width() - self.image_width:
+            self.speed_x *= -1
 
     def draw(self):
+        if self.speed_x > 0:
+            self.walk_frames = self.r_walk_frames
+        if self.speed_x < 0:
+            self.walk_frames = self.l_walk_frames
         current_image = self.walk_frames[self.current_frame]
         self.screen.blit(current_image, (int(self.x), self.y))
 
+    def frames(self):
+        left_frames = self.l_walk_frames[self.current_frame]
+        right_frames = self.r_walk_frames[self.current_frame]
 
 def astronaut():
     pygame.init()

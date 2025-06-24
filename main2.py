@@ -4,6 +4,7 @@ import random
 import math
 import os  # 添加os模块用于文件操作
 from pygame.locals import *
+from enemies import Badguy
 
 # Initialize pygame
 pygame.init()
@@ -891,6 +892,8 @@ class Platform(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(topleft=(x, y))
 
+    def get_rect(self):
+        return self.rect
 
 # Coin class with multiple values
 class Coin(pygame.sprite.Sprite):
@@ -1275,27 +1278,31 @@ for platform in platforms:
     platform_group.add(platform)
     all_sprites.add(platform)
 
+left_filename = ["First_Move_Left.png", "Second_Move_Left.png", "Third_Move_Left.png", "Fourth_Move_Left.png"]
+right_filename = ["First_Move_Right.png", "Second_Move_Right.png", "Third_Move_Right.png", "Fourth_Move_Right.png"]
+
+
 # Create enemies (initial set)
 enemies = [
-    Enemy(300, SCREEN_HEIGHT - 170, "drone"),
-    Enemy(550, SCREEN_HEIGHT - 220, "warrior"),
-    Enemy(850, SCREEN_HEIGHT - 270, "drone"),
-    Enemy(150, SCREEN_HEIGHT - 320, "warrior"),
-    Enemy(650, SCREEN_HEIGHT - 370, "drone"),
-    Enemy(350, SCREEN_HEIGHT - 520, "warrior"),
-    Enemy(750, SCREEN_HEIGHT - 570, "drone"),
+    Badguy(screen, 290, 170, 100, 56, left_filename, right_filename),
+    Badguy(screen, 490, 220, 100, 56, left_filename, right_filename),
+    Badguy(screen, 840, 270, 100, 56, left_filename, right_filename),
+    Badguy(screen, 140, 320, 100, 56, left_filename, right_filename),
+    Badguy(screen, 640, 370, 100, 56, left_filename, right_filename),
+    Badguy(screen, 340, 520, 100, 56, left_filename, right_filename),
+    Badguy(screen, 750, 570, 100, 56, left_filename, right_filename),
 ]
 
 # Add enemies to group
-for enemy in enemies:
-    enemy.set_platform_group(platform_group)
-    enemy_group.add(enemy)
-    all_sprites.add(enemy)
+# for enemy in enemies:
+#     enemy.set_platform_group(platform_group)
+#     enemy_group.add(enemy)
+#     all_sprites.add(enemy)
 
 # Create Boss
 boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-all_sprites.add(boss)
-boss_group.add(boss)
+# all_sprites.add(boss)
+# boss_group.add(boss)
 
 # Create shop
 shop = Shop()
@@ -1465,6 +1472,14 @@ while running:
         all_sprites.draw(screen)
         bullet_group.draw(screen)
         coin_group.draw(screen)
+
+        for enemy in enemies:
+            enemy.move(platform_group.sprites())
+            enemy.animate()
+            enemy.draw()
+            print(f"{enemy.get_rect().x} {enemy.get_rect().y}")
+
+        boss.update()
 
         # Draw player
         if player.hurt_timer > 0 and pygame.time.get_ticks() % 100 < 50:
