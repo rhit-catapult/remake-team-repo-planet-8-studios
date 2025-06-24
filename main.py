@@ -10,8 +10,8 @@ pygame.init()
 pygame.mixer.init()
 
 # Game constants
-SCREEN_WIDTH = 1400
-SCREEN_HEIGHT = 1000
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 800
 FPS = 60
 GRAVITY = 0.8
 JUMP_POWER = -16
@@ -387,33 +387,14 @@ class PlayerB(Player):
 class PlayerAndy(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.image = pygame.Surface((40, 60))
+        self.image = pygame.image.load("standing_sprite.png")
         self._draw_andy()
         self.character_type = "Andy"
         self.speed_level = 1.3  # Faster speed
 
     def _draw_andy(self):
-        # Draw rogue body
-        pygame.draw.ellipse(self.image, (50, 200, 80), (5, 10, 30, 40))  # Body
-        pygame.draw.ellipse(self.image, (30, 150, 50), (5, 10, 30, 40), 2)  # Outline
-        pygame.draw.circle(self.image, (50, 200, 80), (20, 8), 8)  # Head
-        pygame.draw.circle(self.image, (30, 150, 50), (20, 8), 8, 2)  # Head outline
-
-        # Draw eyes
-        pygame.draw.circle(self.image, YELLOW, (15, 6), 3)
-        pygame.draw.circle(self.image, YELLOW, (25, 6), 3)
-
-        # Draw cloak
-        cloak_color = (80, 40, 120)
-        pygame.draw.polygon(self.image, cloak_color, [(0, 50), (40, 50), (30, 60), (10, 60)])
-        pygame.draw.polygon(self.image, (60, 20, 100), [(0, 50), (40, 50), (30, 60), (10, 60)], 2)
-
-        # Draw dual blades
-        blade_color = (100, 200, 255)
-        pygame.draw.rect(self.image, blade_color, (30, 15, 20, 5))
-        pygame.draw.rect(self.image, (70, 150, 255), (30, 15, 20, 5), 1)
-        pygame.draw.rect(self.image, blade_color, (0, 15, 20, 5))
-        pygame.draw.rect(self.image, (70, 150, 255), (0, 15, 20, 5), 1)
+        if self.direction == 'neutral':
+            self.screen.blit(self.stand, (self.x, self.y))
 
 
 # A character
