@@ -19,6 +19,18 @@ PLAYER_SPEED = 7
 ENEMY_SPEED = 2
 BOSS_BULLET_SPEED = 6
 
+# Image dimensions
+STAND_HEIGHT = 80
+STAND_WIDTH = 56
+#LR_HEIGHT = 80
+#LR_WIDTH = 80
+#RR_HEIGHT = 80
+#RR_WIDTH = 80
+#RL_HEIGHT = 80
+#RL_WIDTH = 80
+#LL_HEIGHT = 80
+#LL_WIDTH = 80
+
 # Color definitions
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -387,6 +399,7 @@ class PlayerAndy(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.image = pygame.image.load("standing_sprite.png")
+        self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
         self._draw_andy()
         self.character_type = "Andy"
         self.speed_level = 1.3  # Faster speed
