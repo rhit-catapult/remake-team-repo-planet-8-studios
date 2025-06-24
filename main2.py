@@ -356,31 +356,15 @@ class Player(pygame.sprite.Sprite):
 class PlayerB(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.image = pygame.Surface((40, 60))
-        self._draw_warrior()
+        self.image = pygame.image.load("standing_sprite.png")
+        self._draw_B()
         self.character_type = "B"
         self.damage_level = 1.2  # Higher damage
 
-    def _draw_warrior(self):
-        # Draw warrior body
-        pygame.draw.ellipse(self.image, (200, 50, 50), (5, 10, 30, 40))  # Body
-        pygame.draw.ellipse(self.image, (180, 30, 30), (5, 10, 30, 40), 2)  # Outline
-        pygame.draw.circle(self.image, (200, 50, 50), (20, 8), 8)  # Head
-        pygame.draw.circle(self.image, (180, 30, 30), (20, 8), 8, 2)  # Head outline
+    def _draw_B(self):
+        if self.direction == 'neutral':
+            self.screen.blit(self.stand, (self.x, self.y))
 
-        # Draw eyes
-        pygame.draw.circle(self.image, YELLOW, (15, 6), 3)
-        pygame.draw.circle(self.image, YELLOW, (25, 6), 3)
-
-        # Draw armor
-        armor_color = (100, 100, 180)
-        pygame.draw.polygon(self.image, armor_color, [(0, 50), (40, 50), (30, 60), (10, 60)])
-        pygame.draw.polygon(self.image, (80, 80, 150), [(0, 50), (40, 50), (30, 60), (10, 60)], 2)
-
-        # Draw heavy sword
-        sword_color = (255, 100, 100)
-        pygame.draw.rect(self.image, sword_color, (25, 15, 25, 8))
-        pygame.draw.rect(self.image, (200, 70, 70), (25, 15, 25, 8), 1)
 
 
 # andy character
@@ -879,7 +863,6 @@ class HomingBullet(BossBullet):
                 self.rect.bottom < 0 or self.rect.top > SCREEN_HEIGHT):
             self.kill()
 
-
 # Platform class
 class Platform(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color=PLATFORM_COLOR):
@@ -1267,6 +1250,10 @@ platforms = [
     Platform(1000, SCREEN_HEIGHT - 500, 300, 20),
     Platform(700, SCREEN_HEIGHT - 300, 150, 20),
     Platform(600, SCREEN_HEIGHT - 400, 150, 20),
+    Platform(100, SCREEN_HEIGHT - 650, 200, 20),
+    Platform(1100, SCREEN_HEIGHT - 100, 100, 20),
+    Platform(1050, SCREEN_HEIGHT - 250, 150, 20),
+    Platform(500, SCREEN_HEIGHT - 800, 200, 20),
 
     # High platforms
     Platform(400, SCREEN_HEIGHT - 450, 100, 20),
@@ -1497,10 +1484,10 @@ while running:
                          (SCREEN_WIDTH - 230, 5, 200, 95), 2, border_radius=10)
 
         score_text = font_small.render(f"Score: {player.score}", True, WHITE)
-        screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 80, 15))
+        screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 50, 15))
 
         coins_text = font_small.render(f"Coins: {player.coins}", True, (255, 215, 0))
-        screen.blit(coins_text, (SCREEN_WIDTH - coins_text.get_width() - 80, 50))
+        screen.blit(coins_text, (SCREEN_WIDTH - coins_text.get_width() - 50, 50))
 
         # Draw upgrade status
         upgrades_text = font_tiny.render(f"Dmg: {player.damage_level:.1f}x | Spd: {player.speed_level:.1f}x", True,
