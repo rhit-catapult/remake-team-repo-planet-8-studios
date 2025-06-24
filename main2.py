@@ -1113,8 +1113,8 @@ def draw_character_selection(high_score):
     ]
 
     for i, line in enumerate(warrior_desc):
-        text = font_small.render(line, True, (255, 200, 200))
-        screen.blit(text, (warrior_rect.centerx - text.get_width() // 2, warrior_rect.top + 220 + i * 40))
+        text = font_tiny.render(line, True, (255, 200, 200))
+        screen.blit(text, (warrior_rect.centerx - text.get_width() // 2, warrior_rect.top + 230 + i * 40))
 
     # andy panel
     rogue_rect = pygame.Rect(SCREEN_WIDTH // 2 - char_width // 2, 150, char_width, char_height)
@@ -1122,10 +1122,9 @@ def draw_character_selection(high_score):
     pygame.draw.rect(screen, (50, 200, 80), rogue_rect, 4, border_radius=15)
 
     # Draw andy character
-    rogue_img = pygame.Surface((120, 180), pygame.SRCALPHA)
-    pygame.draw.ellipse(rogue_img, (50, 200, 80), (10, 30, 100, 120))
-    pygame.draw.ellipse(rogue_img, (30, 150, 50), (10, 30, 100, 120), 2)
-    screen.blit(rogue_img, (rogue_rect.centerx - 60, rogue_rect.top + 30))
+    andy_img = pygame.image.load("standing_sprite.png")
+    andy_img = pygame.transform.scale(andy_img, (STAND_WIDTH * 1.8, STAND_HEIGHT * 1.8))
+    screen.blit(andy_img, (rogue_rect.centerx - 50, rogue_rect.top + 70))
 
     # andy info
     rogue_title = font_medium.render("Andy", True, (150, 255, 200))
@@ -1138,8 +1137,8 @@ def draw_character_selection(high_score):
     ]
 
     for i, line in enumerate(rogue_desc):
-        text = font_small.render(line, True, (200, 255, 200))
-        screen.blit(text, (rogue_rect.centerx - text.get_width() // 2, rogue_rect.top + 220 + i * 40))
+        text = font_tiny.render(line, True, (200, 255, 200))
+        screen.blit(text, (rogue_rect.centerx - text.get_width() // 2, rogue_rect.top + 230 + i * 40))
 
     # A panel
     mage_rect = pygame.Rect(SCREEN_WIDTH // 2 + char_width // 2 + spacing, 150, char_width, char_height)
@@ -1163,8 +1162,8 @@ def draw_character_selection(high_score):
     ]
 
     for i, line in enumerate(mage_desc):
-        text = font_small.render(line, True, (220, 220, 255))
-        screen.blit(text, (mage_rect.centerx - text.get_width() // 2, mage_rect.top + 220 + i * 40))
+        text = font_tiny.render(line, True, (220, 220, 255))
+        screen.blit(text, (mage_rect.centerx - text.get_width() // 2, mage_rect.top + 230 + i * 40))
 
     # Start prompt
     start_text = font_medium.render("Press SPACE to Start", True, (100, 255, 100))
