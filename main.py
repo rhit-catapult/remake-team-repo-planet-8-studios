@@ -4,6 +4,7 @@ import random
 import math
 import os  # 添加os模块用于文件操作
 from pygame.locals import *
+from enemies import Badguy
 
 # Initialize pygame
 pygame.init()
@@ -1263,22 +1264,25 @@ for platform in platforms:
     platform_group.add(platform)
     all_sprites.add(platform)
 
+left_filename = ["First_Move_Left.png" "Second_Move_Left.png" "Third_Move_Left.png" "Fourth_Move_Left.png"]
+right_filename = ["First_Move_Right.png" "Second_Move_Right.png" "Third_Move_Right.png" "Fourth_Move_Right.png"]
+
 # Create enemies (initial set)
 enemies = [
-    Enemy(300, SCREEN_HEIGHT - 170, "drone"),
-    Enemy(550, SCREEN_HEIGHT - 220, "warrior"),
-    Enemy(850, SCREEN_HEIGHT - 270, "drone"),
-    Enemy(150, SCREEN_HEIGHT - 320, "warrior"),
-    Enemy(650, SCREEN_HEIGHT - 370, "drone"),
-    Enemy(350, SCREEN_HEIGHT - 520, "warrior"),
-    Enemy(750, SCREEN_HEIGHT - 570, "drone"),
+    Badguy(screen, 300, -170, 100, 56, left_filename, right_filename),
+    Badguy(screen, 500, -220, 100, 56, left_filename, right_filename),
+    Badguy(screen, 850, -270, 100, 56, left_filename, right_filename),
+    Badguy(screen, 150, - 320, 100, 56, left_filename, right_filename),
+    Badguy(screen, 650, -370, 100, 56, left_filename, right_filename),
+    Badguy(screen,350, -520, 100, 56, left_filename, right_filename),
+    Badguy(screen,750, -570, 100, 56, left_filename, right_filename),
 ]
 
 # Add enemies to group
-for enemy in enemies:
-    enemy.set_platform_group(platform_group)
-    enemy_group.add(enemy)
-    all_sprites.add(enemy)
+# for enemy in enemies:
+#     enemy.set_platform_group(platform_group)
+#     enemy_group.add(enemy)
+#     all_sprites.add(enemy)
 
 # Create Boss
 boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
