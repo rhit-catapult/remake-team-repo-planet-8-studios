@@ -1080,7 +1080,7 @@ def draw_start_menu(high_score):
         star.draw(screen)
 
     # Draw title with glow effect
-    title = font_large.render("Planet-8-studio", True, (100, 200, 255))
+    title = font_large.render("Planet Othryn", True, (100, 200, 255))
 
     # Title glow
     for i in range(5, 0, -1):
@@ -1318,8 +1318,8 @@ platforms = [
     Platform(500, SCREEN_HEIGHT - 350, 150, 30),
     Platform(900, SCREEN_HEIGHT - 600, 400, 10),
     Platform(1000, SCREEN_HEIGHT - 500, 300, 20),
-    Platform(700, SCREEN_HEIGHT - 300, 150, 20),
-    Platform(600, SCREEN_HEIGHT - 400, 150, 20),
+    Platform(900, SCREEN_HEIGHT - 300, 150, 20),
+    Platform(700, SCREEN_HEIGHT - 400, 150, 20),
     Platform(100, SCREEN_HEIGHT - 650, 200, 20),
     Platform(1100, SCREEN_HEIGHT - 100, 100, 20),
     Platform(1050, SCREEN_HEIGHT - 250, 150, 20),
@@ -1331,7 +1331,7 @@ platforms = [
 
     # Extra platforms
     Platform(300, SCREEN_HEIGHT - 500, 150, 20),
-    Platform(700, SCREEN_HEIGHT - 550, 100, 20),
+    Platform(800, SCREEN_HEIGHT - 550, 100, 20),
 ]
 
 # Add platforms to group
