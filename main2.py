@@ -1105,12 +1105,10 @@ def draw_start_menu(high_score):
     screen.blit(story_title, (panel_rect.centerx - story_title.get_width() // 2, panel_rect.top + 20))
 
     story_lines = [
-        "In the distant future, after humans have conquered the solar system that we live in, they moved on to other solar systems",
-        "and eventually the entire universe. They began to set their sights on planets further and further away from Earth, and found the planet Othryn.",
-        "Once the humans came, the took over Othryn like a virus, spreading in the blink of an eye.",
-        "The aliens were unhappy with their new rulers, and revolted, and after a civil war that spanned 17 years, the few surviving rebels were forced into hiding",
-        "The humans left after the planet was thrashed, leaving behind a few squads of their army to keep the planet under their control.",
-        "Now, multiple years later, its up to Plibo to free Othryn from the human's rule.",
+        "In the distant future, after humans conquered their own solar system, they moved on to other solar,",
+        "systems eventually setting their sights on the furthest reaches of the universe. One such remote location is",
+        "the alien planet of Othryn. The humans overtook Othryn like a virus, leaving the tyrant Neil and several troops",
+        " in their wake. Three brave citizens still fight the human forces, a final stand to free their people.",
     ]
 
     for i, line in enumerate(story_lines):
