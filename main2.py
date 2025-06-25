@@ -396,12 +396,12 @@ class Player(pygame.sprite.Sprite):
 
 
 # B character
-class PlayerB(Player):
+class PlayerNathen(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.image = pygame.image.load("standing_sprite.png")
         self._draw_B()
-        self.character_type = "B"
+        self.character_type = "Nathen"
         self.damage_level = 1.2  # Higher damage
 
     def _draw_B(self):
@@ -425,15 +425,15 @@ class PlayerAndy(Player):
 
 
 # A character
-class PlayerA(Player):
+class PlayerJesmo(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.image = pygame.Surface((40, 60))
-        self._draw_mage()
+        self._draw_jesmo()
         self.character_type = "A"
         self.push_cooldown = 40  # Shorter cooldown for psychic push
 
-    def _draw_mage(self):
+    def _draw_jesmo(self):
         # Draw mage body
         pygame.draw.ellipse(self.image, (100, 100, 200), (5, 10, 30, 40))  # Body
         pygame.draw.ellipse(self.image, (70, 70, 180), (5, 10, 30, 40), 2)  # Outline
@@ -1196,7 +1196,7 @@ def draw_character_selection(high_score):
     screen.blit(warrior_img, (warrior_rect.centerx - 60, warrior_rect.top + 30))
 
     # B info
-    warrior_title = font_medium.render("B", True, (255, 150, 150))
+    warrior_title = font_medium.render("Nathen", True, (255, 150, 150))
     screen.blit(warrior_title, (warrior_rect.centerx - warrior_title.get_width() // 2, warrior_rect.top + 20))
 
     warrior_desc = [
@@ -1245,7 +1245,7 @@ def draw_character_selection(high_score):
     screen.blit(mage_img, (mage_rect.centerx - 60, mage_rect.top + 30))
 
     # A info
-    mage_title = font_medium.render("A", True, (180, 180, 255))
+    mage_title = font_medium.render("Jesmo", True, (180, 180, 255))
     screen.blit(mage_title, (mage_rect.centerx - mage_title.get_width() // 2, mage_rect.top + 20))
 
     mage_desc = [
@@ -1434,6 +1434,9 @@ high_score = read_high_score()
 score_saved = False  # 标记分数是否已保存
 
 # Game main loop
+# Game main loop
+last_key_pressed = None
+
 running = True
 while running:
     # Event handling
@@ -1449,19 +1452,63 @@ while running:
                 shop.selected_index = (shop.selected_index - 1) % len(shop.items)
             elif event.key == K_s and shop.visible:
                 shop.selected_index = (shop.selected_index + 1) % len(shop.items)
+
+            # 首先处理角色选择按键
+            elif game_state == "character_selection":
+                if event.key == K_1:
+                    last_key_pressed = K_1
+                    selected_character = "Nathen"  # 立即设置角色
+                    if pygame.mixer.get_init() and select_sound:
+                        select_sound.play()
+                elif event.key == K_2:
+                    last_key_pressed = K_2
+                    selected_character = "andy"  # 立即设置角色
+                    if pygame.mixer.get_init() and select_sound:
+                        select_sound.play()
+                elif event.key == K_3:
+                    last_key_pressed = K_3
+                    selected_character = "Jesmo"  # 立即设置角色
+                    if pygame.mixer.get_init() and select_sound:
+                        select_sound.play()
+                # 处理空格键开始游戏
+                elif event.key == K_SPACE and selected_character:
+                    # 开始游戏
+                    if game_state != "playing":
+                        game_state = "playing"
+                        if pygame.mixer.get_init() and select_sound:
+                            select_sound.play()
+
+                        # Create player if not created
+                        if selected_character and not player:
+                            if selected_character == "Nathen":
+                                player = PlayerNathen(100, SCREEN_HEIGHT - 100)
+                            elif selected_character == "andy":
+                                player = PlayerAndy(100, SCREEN_HEIGHT - 100)
+                            elif selected_character == "Jesmo":
+                                player = PlayerJesmo(100, SCREEN_HEIGHT - 100)
+
+                            if player:
+                                player.set_groups(platform_group, enemy_group, boss_group)
+                                player.badguys = enemies
+                                all_sprites.add(player)
+
+                                if boss:
+                                    boss.set_references(player, bullet_group)
+
+            # 然后处理其他空格键事件
             elif event.key == K_SPACE:
                 if game_state == "start_menu":
                     game_state = "character_selection"
-                elif game_state == "character_selection" and selected_character:
-                    game_state = "playing"
                 elif shop.visible:
                     shop.purchase(player)
+
             elif event.key == K_r and (game_state == "game_over" or game_state == "victory"):
                 # Restart game
                 game_state = "character_selection"
                 selected_character = None
                 player = None
                 score_saved = False
+                last_key_pressed = None  # 重置按键记录
 
                 # Clear all groups
                 all_sprites.empty()
@@ -1476,35 +1523,10 @@ while running:
                     platform_group.add(platform)
                     all_sprites.add(platform)
 
-                # Recreate enemies
-                # for enemy in enemies:
-                #     enemy.set_platform_group(platform_group)
-                #     enemy_group.add(enemy)
-                #     all_sprites.add(enemy)
                 reset()
-
-                # Recreate Boss
-                # boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-                # all_sprites.add(boss)
-                # boss_group.add(boss)
-
-                # Reset spawn timer
                 spawn_timer = 0
-
                 game_start_time = pygame.time.get_ticks()
-            elif game_state == "character_selection":
-                if event.key == K_1:
-                    selected_character = "B"
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
-                elif event.key == K_2:
-                    selected_character = "andy"
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
-                elif event.key == K_3:
-                    selected_character = "A"
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
+
             elif game_state == "victory" and not score_saved:
                 # 在胜利状态下处理保存分数
                 if event.key == K_y:  # 按Y键保存分数
@@ -1554,26 +1576,15 @@ while running:
         draw_character_selection(high_score)
 
         # Highlight selected character
-        if selected_character:
+        if last_key_pressed:
+            if selected_character == "Nathen":
+                char_name = "Nathen"
+            elif selected_character == "Andy":
+                char_name = "andy"
+            elif selected_character == "Jesmo":
+                char_name = "Jesmo"
             text = font_medium.render(f"Selected: {selected_character.upper()}", True, (255, 215, 0))
             screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT - 160))
-
-        # Create player if not created
-        if selected_character and not player:
-            if selected_character == "B":
-                player = PlayerB(100, SCREEN_HEIGHT - 100)
-            elif selected_character == "andy":
-                player = PlayerAndy(100, SCREEN_HEIGHT - 100)
-            elif selected_character == "A":
-                player = PlayerA(100, SCREEN_HEIGHT - 100)
-
-            if player:
-                player.set_groups(platform_group, enemy_group, boss_group)
-                player.badguys = enemies
-                all_sprites.add(player)
-
-                if boss:
-                    boss.set_references(player, bullet_group)
 
     elif game_state == "playing" and player:
         # Draw all sprites
