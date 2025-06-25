@@ -202,7 +202,7 @@ class Player(pygame.sprite.Sprite):
             self.lightsaber_active = True
             self.lightsaber_timer = 10
 
-        if keys[K_LSHIFT] and self.push_cooldown == 0:
+        if (keys[K_LSHIFT] or keys[K_RSHIFT]) and self.push_cooldown == 0:
             self.psychic_push()
             self.push_cooldown = 60
 
@@ -305,20 +305,64 @@ class Player(pygame.sprite.Sprite):
         screen.blit(attack_surface, attack_rect.topleft)
 
     def psychic_push(self):
+
+        print('here2')
         # Create psychic push area
         push_rect = pygame.Rect(0, 0, 150, 100)
-        push_rect.midbottom = self.rect.midtop
+        push_rect.midtop = self.rect.midtop
         push_rect.y -= 30
+
+        # 调试：显示push区域（红色半透明矩形）
+        debug_surface = pygame.Surface((150, 100), pygame.SRCALPHA)
+        pygame.draw.rect(debug_surface, (255, 0, 0, 100), (0, 0, 150, 100))
+        screen.blit(debug_surface, push_rect.topleft)
 
         # Check if push hits enemies        # AI
         for enemy in self.enemy_group:
             if push_rect.colliderect(enemy.rect) and enemy.alive:
                 # Knock back enemy based on player direction
+                print('push')
                 push_direction = 1 if enemy.rect.centerx > self.rect.centerx else -1
                 enemy.velocity.x = push_direction * 12
                 enemy.velocity.y = -5
                 enemy.take_damage(5)
                 self.score += 5
+                if pygame.mixer.get_init():
+                    push_sound.play()
+
+                # Create push particle effect
+                for _ in range(10):
+                    particle_x = random.randint(push_rect.left, push_rect.right)
+                    particle_y = random.randint(push_rect.top, push_rect.bottom)
+                    particle_group.append({
+                        'x': particle_x,
+                        'y': particle_y,
+                        'vx': push_direction * random.uniform(1, 3),
+                        'vy': random.uniform(-3, 0),
+                        'color': (200, 100, 255),
+                        'size': random.randint(3, 7),
+                        'life': 30
+                    })
+
+        # Check if push hits Badguy enemies
+        for enemy in self.badguys:
+            enemy_rect = enemy.get_rect()
+            if push_rect.colliderect(enemy_rect) and enemy.alive:
+                # Knock back enemy based on player direction
+                push_direction = 1 if enemy_rect.centerx > self.rect.centerx else -1
+
+                # 确保Badguy有velocity属性
+                if not hasattr(enemy, 'velocity'):
+                    enemy.velocity = pygame.math.Vector2(0, 0)
+
+                enemy.velocity.x = push_direction * 12
+                enemy.velocity.y = -5
+
+                # 确保Badguy有take_damage方法
+                if hasattr(enemy, 'take_damage'):
+                    enemy.take_damage(5)
+                self.score += 5
+
                 if pygame.mixer.get_init():
                     push_sound.play()
 
@@ -396,7 +440,7 @@ class PlayerNathaniel(Player):
         self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
         self._draw_andy()
         self.character_type = "Nathaniel"
-        self.speed_level = 1.3  # Faster speed
+        self.damage_level = 2 # higher damage
 
     def _draw_andy(self):
         if self.direction == 'neutral':
@@ -1127,19 +1171,18 @@ def draw_character_selection(high_score):
     char_height = 380
     spacing = 40
 
-    # B panel
+    # Nathaniel panel
     warrior_rect = pygame.Rect(SCREEN_WIDTH // 2 - char_width * 1.5 - spacing, 150, char_width, char_height)
     pygame.draw.rect(screen, (40, 20, 60, 220), warrior_rect, border_radius=15)
     pygame.draw.rect(screen, (200, 50, 50), warrior_rect, 4, border_radius=15)
 
-    # Draw B character
-    warrior_img = pygame.Surface((120, 180), pygame.SRCALPHA)
-    pygame.draw.ellipse(warrior_img, (200, 50, 50), (10, 30, 100, 120))
-    pygame.draw.ellipse(warrior_img, (180, 30, 30), (10, 30, 100, 120), 2)
-    screen.blit(warrior_img, (warrior_rect.centerx - 60, warrior_rect.top + 30))
+    # Draw Nathaniel character
+    warrior_img = pygame.image.load("warrior_sprite.png")
+    warrior_img = pygame.transform.scale(warrior_img, (STAND_WIDTH * 1.95, STAND_HEIGHT * 1.95))
+    screen.blit(warrior_img, (warrior_rect.centerx - 60, warrior_rect.top + 70))
 
-    # B info
-    warrior_title = font_medium.render("Nathen", True, (255, 150, 150))
+    # Nathaniel info
+    warrior_title = font_medium.render("Nathaniel", True, (255, 150, 150))
     screen.blit(warrior_title, (warrior_rect.centerx - warrior_title.get_width() // 2, warrior_rect.top + 20))
 
     warrior_desc = [
@@ -1176,16 +1219,15 @@ def draw_character_selection(high_score):
         text = font_tiny.render(line, True, (200, 255, 200))
         screen.blit(text, (rogue_rect.centerx - text.get_width() // 2, rogue_rect.top + 230 + i * 40))
 
-    # A panel
+    # Jesmo panel
     mage_rect = pygame.Rect(SCREEN_WIDTH // 2 + char_width // 2 + spacing, 150, char_width, char_height)
     pygame.draw.rect(screen, (40, 20, 60, 220), mage_rect, border_radius=15)
     pygame.draw.rect(screen, (100, 100, 200), mage_rect, 4, border_radius=15)
 
-    # Draw A character
-    mage_img = pygame.Surface((120, 180), pygame.SRCALPHA)
-    pygame.draw.ellipse(mage_img, (100, 100, 200), (10, 30, 100, 120))
-    pygame.draw.ellipse(mage_img, (70, 70, 180), (10, 30, 100, 120), 2)
-    screen.blit(mage_img, (mage_rect.centerx - 60, mage_rect.top + 30))
+    # Draw Jesmo character
+    Jesmo_img = pygame.image.load("mage_sprite.png")
+    Jesmo_img = pygame.transform.scale(Jesmo_img, (STAND_WIDTH * 1.8, STAND_HEIGHT * 2))
+    screen.blit(Jesmo_img, (mage_rect.centerx - 60, mage_rect.top + 65))
 
     # A info
     mage_title = font_medium.render("Jesmo", True, (180, 180, 255))
@@ -1316,6 +1358,10 @@ def reset():
         Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
         Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
     ]
+    boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+    all_sprites.add(boss)
+    boss_group.add(boss)
+
 
 # Create enemies (initial set)
 enemies = []
@@ -1336,9 +1382,9 @@ for i in range(7):  # 创建7个敌人
 
 # Create Boss
 
-    boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-# all_sprites.add(boss)
-# boss_group.add(boss)
+boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+all_sprites.add(boss)
+boss_group.add(boss)
 reset()
 
 
@@ -1376,7 +1422,7 @@ player = None
 high_score = read_high_score()
 score_saved = False  # 标记分数是否已保存
 
-# Game main loop
+
 # Game main loop
 last_key_pressed = None
 
@@ -1400,7 +1446,7 @@ while running:
             elif game_state == "character_selection":
                 if event.key == K_1:
                     last_key_pressed = K_1
-                    selected_character = "Nathen"  # 立即设置角色
+                    selected_character = "Nathaniel"  # 立即设置角色
                     if pygame.mixer.get_init() and select_sound:
                         select_sound.play()
                 elif event.key == K_2:
@@ -1423,7 +1469,7 @@ while running:
 
                         # Create player if not created
                         if selected_character and not player:
-                            if selected_character == "Nathen":
+                            if selected_character == "Nathaniel":
                                 player = PlayerNathaniel(100, SCREEN_HEIGHT - 100)
                             elif selected_character == "andy":
                                 player = PlayerAndy(100, SCREEN_HEIGHT - 100)
@@ -1535,8 +1581,22 @@ while running:
         bullet_group.draw(screen)
         coin_group.draw(screen)
 
-
         for enemy in enemies:
+            # 更新位置（如果Badguy有velocity属性）
+            if hasattr(enemy, 'velocity'):
+                # 应用重力
+                enemy.velocity.y += GRAVITY
+
+                # 更新位置
+                enemy.x += enemy.velocity.x
+                enemy.y += enemy.velocity.y
+
+                # 边界检查
+                if enemy.x < 0:
+                    enemy.x = 0
+                elif enemy.x > SCREEN_WIDTH - enemy.image_width:
+                    enemy.x = SCREEN_WIDTH - enemy.image_width
+
             enemy.move(platform_group.sprites())
             enemy.animate()
             enemy.draw()
@@ -1650,6 +1710,7 @@ while running:
         if player.health <= 0:
             game_state = "game_over"
         elif not boss.alive:
+            print("boss dead")
             game_state = "victory"
 
     elif game_state == "game_over":

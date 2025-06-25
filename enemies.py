@@ -18,6 +18,7 @@ class Badguy:
         self.hurt_timer = 0
         self.alive = True
 
+
         self.l_walk_frames = [
             pygame.transform.scale(pygame.image.load(f), (self.image_width, self.image_height))
             for f in left_running_filenames
