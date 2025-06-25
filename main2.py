@@ -366,15 +366,16 @@ class Player(pygame.sprite.Sprite):
 
 
 # B character
-class PlayerB(Player):
+class PlayerNathaniel(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.image = pygame.image.load("standing_sprite.png")
-        self._draw_B()
-        self.character_type = "B"
-        self.damage_level = 1.2  # Higher damage
+        self.image = pygame.image.load("warrior_sprite.png")
+        self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
+        self._draw_andy()
+        self.character_type = "Nathaniel"
+        self.speed_level = 1.3  # Faster speed
 
-    def _draw_B(self):
+    def _draw_andy(self):
         if self.direction == 'neutral':
             self.screen.blit(self.stand, (self.x, self.y))
 
@@ -1444,7 +1445,7 @@ while running:
         # Create player if not created
         if selected_character and not player:
             if selected_character == "B":
-                player = PlayerB(100, SCREEN_HEIGHT - 100)
+                player = PlayerNathaniel(100, SCREEN_HEIGHT - 100)
             elif selected_character == "andy":
                 player = PlayerAndy(100, SCREEN_HEIGHT - 100)
             elif selected_character == "A":
