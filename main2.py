@@ -616,40 +616,38 @@ class Boss(pygame.sprite.Sprite):
         self.bullet_group = bullet_group
 
     def _draw_boss(self):
-        # Draw improved astronaut body
-        pygame.draw.rect(self.image, (220, 220, 220), (20, 40, 40, 50))  # Body
-        pygame.draw.rect(self.image, (180, 180, 180), (20, 40, 40, 50), 2)  # Outline
+        if self.direction == 'neutral':
+            self.screen.blit(self.stand, (self.x, self.y))
 
-        # Draw armor plates
-        pygame.draw.rect(self.image, (100, 100, 150), (15, 30, 50, 15))
-        pygame.draw.rect(self.image, (80, 80, 130), (15, 30, 50, 15), 1)
 
-        # Draw helmet with visor
-        pygame.draw.circle(self.image, (230, 230, 250), (40, 25), 22)  # Helmet
-        pygame.draw.circle(self.image, (200, 200, 220), (40, 25), 22, 2)  # Helmet outline
 
-        # Visor with reflection
-        pygame.draw.rect(self.image, (100, 150, 220), (20, 10, 40, 20))
-        pygame.draw.rect(self.image, (70, 120, 200), (20, 10, 40, 20), 1)
-        pygame.draw.ellipse(self.image, (180, 220, 255), (45, 12, 10, 8))
+    def attack(self):
+        if self.player and self.bullet_group:
+            # Phase 1: 单发子弹
+            if self.phase == 1:
+                bullet = BossBullet(
+                    self.rect.centerx, self.rect.centery,
+                    self.player.rect.centerx, self.player.rect.centery
+                )
+                self.bullet_group.add(bullet)
 
-        # Evil glowing eyes
-        pygame.draw.circle(self.image, (255, 80, 80), (30, 20), 6)
-        pygame.draw.circle(self.image, (255, 180, 100), (30, 20), 3)
-        pygame.draw.circle(self.image, (255, 80, 80), (50, 20), 6)
-        pygame.draw.circle(self.image, (255, 180, 100), (50, 20), 3)
+            # Phase 2: 三发散射
+            elif self.phase == 2:
+                for angle in (-10, 0, 10):
+                    bullet = BossBullet(
+                        self.rect.centerx, self.rect.centery,
+                        self.player.rect.centerx, self.player.rect.centery,
+                        angle
+                    )
+                    self.bullet_group.add(bullet)
 
-        # Backpack with thrusters
-        pygame.draw.rect(self.image, (80, 80, 100), (10, 45, 20, 35))
-        pygame.draw.rect(self.image, (60, 60, 80), (10, 45, 20, 35), 1)
-
-        # Thrusters
-        pygame.draw.rect(self.image, (180, 100, 80), (12, 75, 6, 15))
-        pygame.draw.rect(self.image, (180, 100, 80), (22, 75, 6, 15))
-
-        # Energy weapon
-        pygame.draw.rect(self.image, (180, 80, 220), (55, 50, 20, 10))
-        pygame.draw.rect(self.image, (150, 60, 200), (55, 50, 20, 10), 1)
+            # Phase 3: 追踪子弹
+            elif self.phase == 3:
+                bullet = HomingBullet(
+                    self.rect.centerx, self.rect.centery,
+                    self.player
+                )
+                self.bullet_group.add(bullet)
 
     def update(self):
         if not self.alive or not self.player or not self.bullet_group:
@@ -721,6 +719,25 @@ class Boss(pygame.sprite.Sprite):
             self.attack()
             self.attack_timer = 50 - (self.phase * 10)  # Faster attacks in later phases
 
+            # 添加喷血效果（当玩家被击中时）
+            if pygame.sprite.spritecollide(player, bullet_group, True):
+                player.health -= 8
+                player.hurt_timer = 10
+                if player.health < 0:
+                    player.health = 0
+
+                # 添加喷血效果
+                for _ in range(10):
+                    particle_group.append({
+                        'x': random.randint(player.rect.left, player.rect.right),
+                        'y': random.randint(player.rect.top, player.rect.bottom),
+                        'vx': random.uniform(-2, 2),
+                        'vy': random.uniform(-2, 2),
+                        'color': (200, 30, 30),  # 深红色
+                        'size': random.randint(2, 4),
+                        'life': 25
+                    })
+
         # Hurt effect
         if self.hurt_timer > 0:
             self.hurt_timer -= 1
@@ -733,6 +750,17 @@ class Boss(pygame.sprite.Sprite):
     def take_damage(self, damage):
         self.health -= damage
         self.hurt_timer = 10  # Longer hurt effect
+
+        for _ in range(10):
+            particle_group.append({
+                'x': random.randint(self.rect.left, self.rect.right),
+                'y': random.randint(self.rect.top, self.rect.bottom),
+                'vx': random.uniform(-2, 2),
+                'vy': random.uniform(-2, 2),
+                'color': (200, 30, 30),  # 深红色
+                'size': random.randint(2, 4),
+                'life': 25
+            })
 
         if self.health <= 0:
             self.alive = False
@@ -968,7 +996,7 @@ class Shop:
             return
 
         # Draw shop background
-        shop_rect = pygame.Rect(SCREEN_WIDTH // 2 - 250, SCREEN_HEIGHT // 2 - 200, 500, 400)
+        shop_rect = pygame.Rect(SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT // 2 - 250, 600, 500)
         pygame.draw.rect(surface, (40, 20, 60, 220), shop_rect, border_radius=15)
         pygame.draw.rect(surface, (180, 70, 255), shop_rect, 4, border_radius=15)
 
@@ -983,7 +1011,7 @@ class Shop:
         # Draw items list
         for i, item in enumerate(self.items):
             # Background
-            item_rect = pygame.Rect(shop_rect.left + 50, shop_rect.top + 130 + i * 70, 400, 60)
+            item_rect = pygame.Rect(shop_rect.left + 50, shop_rect.top + 130 + i * 100, 500, 80)
             if i == self.selected_index:
                 pygame.draw.rect(surface, (80, 40, 100, 220), item_rect, border_radius=10)
                 pygame.draw.rect(surface, (200, 150, 255), item_rect, 3, border_radius=10)
@@ -993,14 +1021,14 @@ class Shop:
             # Item name and price
             color = (200, 200, 255) if i == self.selected_index else (180, 180, 220)
             item_text = font_small.render(f"{item['name']} - {item['cost']} coins", True, color)
-            surface.blit(item_text, (item_rect.centerx - item_text.get_width() // 2, item_rect.top + 10))
+            surface.blit(item_text, (item_rect.centerx - item_text.get_width() // 2, item_rect.top + 15))
 
             # Item description
-            desc_text = font_tiny.render(item['desc'], True, (200, 200, 200))
-            surface.blit(desc_text, (item_rect.centerx - desc_text.get_width() // 2, item_rect.top + 35))
+            desc_text = font_tinytiny.render(item['desc'], True, (200, 200, 200))
+            surface.blit(desc_text, (item_rect.centerx - desc_text.get_width() // 2, item_rect.top + 60))
 
         # Draw purchase instructions
-        info_text = font_small.render("W/S: Select | SPACE: Buy | TAB: Close Shop", True, (150, 200, 255))
+        info_text = font_tiny.render("W/S: Select | SPACE: Buy | TAB: Close Shop", True, (150, 200, 255))
         surface.blit(info_text, (shop_rect.centerx - info_text.get_width() // 2, shop_rect.bottom - 50))
 
     def purchase(self, player):
@@ -1157,7 +1185,7 @@ def draw_character_selection(high_score):
     # Draw andy character
     andy_img = pygame.image.load("standing_sprite.png")
     andy_img = pygame.transform.scale(andy_img, (STAND_WIDTH * 1.8, STAND_HEIGHT * 1.8))
-    screen.blit(andy_img, (rogue_rect.centerx - 50, rogue_rect.top + 70))
+    screen.blit(andy_img, (rogue_rect.centerx - 50, rogue_rect.top + 75))
 
     # andy info
     rogue_title = font_medium.render("Andy", True, (150, 255, 200))
@@ -1300,6 +1328,7 @@ right_filename = ["First_Move_Right.png", "Second_Move_Right.png", "Third_Move_R
 enemies = None
 boss = None
 
+<<<<<<< Updated upstream
 def reset():
     global enemies, boss
     # Create enemies (initial set)
@@ -1312,18 +1341,35 @@ def reset():
         Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
         Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
     ]
+=======
+# Create enemies (initial set)
+enemies = []
+for i in range(7):  # 创建7个敌人
+    x = random.randint(50, SCREEN_WIDTH - 50)
+    y = random.randint(SCREEN_HEIGHT - 400, SCREEN_HEIGHT - 100)
+    enemy_type = "warrior" if i % 2 == 0 else "drone"  # 交替创建不同类型
 
-# Add enemies to group
-# for enemy in enemies:
-#     enemy.set_platform_group(platform_group)
-#     enemy_group.add(enemy)
-#     all_sprites.add(enemy)
+    enemy = Enemy(x, y, enemy_type)
+    enemy.set_platform_group(platform_group)
+    enemy_group.add(enemy)
+    all_sprites.add(enemy)
+    enemies.append(enemy)
+
+>>>>>>> Stashed changes
+
 
 # Create Boss
+<<<<<<< Updated upstream
     boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
 # all_sprites.add(boss)
 # boss_group.add(boss)
 reset()
+=======
+boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+all_sprites.add(boss)
+boss_group.add(boss)
+
+>>>>>>> Stashed changes
 # Create shop
 shop = Shop()
 
@@ -1489,17 +1535,23 @@ while running:
                 player.badguys = enemies
                 all_sprites.add(player)
 
+                if boss:
+                    boss.set_references(player, bullet_group)
+
     elif game_state == "playing" and player:
         # Draw all sprites
         all_sprites.draw(screen)
         bullet_group.draw(screen)
         coin_group.draw(screen)
+<<<<<<< Updated upstream
 
         for enemy in enemies:
             enemy.move(platform_group.sprites())
             enemy.animate()
             enemy.draw()
 
+=======
+>>>>>>> Stashed changes
         boss.update()
 
         # Draw player
@@ -1586,7 +1638,7 @@ while running:
                 })
 
         # Detect bullets hitting player - INCREASED DAMAGE
-        if pygame.sprite.spritecollide(player, bullet_group, True):
+        if player and pygame.sprite.spritecollide(player, bullet_group, True):
             player.health -= 8  # Increased from 4 to 8
             player.hurt_timer = 10
             if player.health < 0:
