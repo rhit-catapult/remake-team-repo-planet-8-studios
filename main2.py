@@ -11,7 +11,7 @@ pygame.init()
 pygame.mixer.init()
 
 # Game constants
-SCREEN_WIDTH = 1000
+SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 1000
 FPS = 60
 GRAVITY = 0.8
