@@ -426,15 +426,15 @@ class PlayerAndy(Player):
 
 
 # A character
-class PlayerA(Player):
+class PlayerJesmo(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.image = pygame.Surface((40, 60))
-        self._draw_mage()
+        self._draw_jesmo()
         self.character_type = "A"
         self.push_cooldown = 40  # Shorter cooldown for psychic push
 
-    def _draw_mage(self):
+    def _draw_jesmo(self):
         # Draw mage body
         pygame.draw.ellipse(self.image, (100, 100, 200), (5, 10, 30, 40))  # Body
         pygame.draw.ellipse(self.image, (70, 70, 180), (5, 10, 30, 40), 2)  # Outline
@@ -652,6 +652,36 @@ class Boss(pygame.sprite.Sprite):
         pygame.draw.rect(self.image, (180, 80, 220), (55, 50, 20, 10))
         pygame.draw.rect(self.image, (150, 60, 200), (55, 50, 20, 10), 1)
 
+
+
+    def attack(self):
+        if self.player and self.bullet_group:
+            # Phase 1: 单发子弹
+            if self.phase == 1:
+                bullet = BossBullet(
+                    self.rect.centerx, self.rect.centery,
+                    self.player.rect.centerx, self.player.rect.centery
+                )
+                self.bullet_group.add(bullet)
+
+            # Phase 2: 三发散射
+            elif self.phase == 2:
+                for angle in (-10, 0, 10):
+                    bullet = BossBullet(
+                        self.rect.centerx, self.rect.centery,
+                        self.player.rect.centerx, self.player.rect.centery,
+                        angle
+                    )
+                    self.bullet_group.add(bullet)
+
+            # Phase 3: 追踪子弹
+            elif self.phase == 3:
+                bullet = HomingBullet(
+                    self.rect.centerx, self.rect.centery,
+                    self.player
+                )
+                self.bullet_group.add(bullet)
+
     def update(self):
         if not self.alive or not self.player or not self.bullet_group:
             return
@@ -722,6 +752,25 @@ class Boss(pygame.sprite.Sprite):
             self.attack()
             self.attack_timer = 50 - (self.phase * 10)  # Faster attacks in later phases
 
+            # 添加喷血效果（当玩家被击中时）
+            if pygame.sprite.spritecollide(player, bullet_group, True):
+                player.health -= 8
+                player.hurt_timer = 10
+                if player.health < 0:
+                    player.health = 0
+
+                # 添加喷血效果
+                for _ in range(10):
+                    particle_group.append({
+                        'x': random.randint(player.rect.left, player.rect.right),
+                        'y': random.randint(player.rect.top, player.rect.bottom),
+                        'vx': random.uniform(-2, 2),
+                        'vy': random.uniform(-2, 2),
+                        'color': (200, 30, 30),  # 深红色
+                        'size': random.randint(2, 4),
+                        'life': 25
+                    })
+
         # Hurt effect
         if self.hurt_timer > 0:
             self.hurt_timer -= 1
@@ -734,6 +783,17 @@ class Boss(pygame.sprite.Sprite):
     def take_damage(self, damage):
         self.health -= damage
         self.hurt_timer = 10  # Longer hurt effect
+
+        for _ in range(10):
+            particle_group.append({
+                'x': random.randint(self.rect.left, self.rect.right),
+                'y': random.randint(self.rect.top, self.rect.bottom),
+                'vx': random.uniform(-2, 2),
+                'vy': random.uniform(-2, 2),
+                'color': (200, 30, 30),  # 深红色
+                'size': random.randint(2, 4),
+                'life': 25
+            })
 
         if self.health <= 0:
             self.alive = False
@@ -969,7 +1029,7 @@ class Shop:
             return
 
         # Draw shop background
-        shop_rect = pygame.Rect(SCREEN_WIDTH // 2 - 250, SCREEN_HEIGHT // 2 - 200, 500, 400)
+        shop_rect = pygame.Rect(SCREEN_WIDTH // 2 - 300, SCREEN_HEIGHT // 2 - 250, 600, 500)
         pygame.draw.rect(surface, (40, 20, 60, 220), shop_rect, border_radius=15)
         pygame.draw.rect(surface, (180, 70, 255), shop_rect, 4, border_radius=15)
 
@@ -984,7 +1044,7 @@ class Shop:
         # Draw items list
         for i, item in enumerate(self.items):
             # Background
-            item_rect = pygame.Rect(shop_rect.left + 50, shop_rect.top + 130 + i * 70, 400, 60)
+            item_rect = pygame.Rect(shop_rect.left + 50, shop_rect.top + 130 + i * 100, 500, 80)
             if i == self.selected_index:
                 pygame.draw.rect(surface, (80, 40, 100, 220), item_rect, border_radius=10)
                 pygame.draw.rect(surface, (200, 150, 255), item_rect, 3, border_radius=10)
@@ -994,14 +1054,14 @@ class Shop:
             # Item name and price
             color = (200, 200, 255) if i == self.selected_index else (180, 180, 220)
             item_text = font_small.render(f"{item['name']} - {item['cost']} coins", True, color)
-            surface.blit(item_text, (item_rect.centerx - item_text.get_width() // 2, item_rect.top + 10))
+            surface.blit(item_text, (item_rect.centerx - item_text.get_width() // 2, item_rect.top + 15))
 
             # Item description
-            desc_text = font_tiny.render(item['desc'], True, (200, 200, 200))
-            surface.blit(desc_text, (item_rect.centerx - desc_text.get_width() // 2, item_rect.top + 35))
+            desc_text = font_tinytiny.render(item['desc'], True, (200, 200, 200))
+            surface.blit(desc_text, (item_rect.centerx - desc_text.get_width() // 2, item_rect.top + 60))
 
         # Draw purchase instructions
-        info_text = font_small.render("W/S: Select | SPACE: Buy | TAB: Close Shop", True, (150, 200, 255))
+        info_text = font_tiny.render("W/S: Select | SPACE: Buy | TAB: Close Shop", True, (150, 200, 255))
         surface.blit(info_text, (shop_rect.centerx - info_text.get_width() // 2, shop_rect.bottom - 50))
 
     def purchase(self, player):
@@ -1137,7 +1197,7 @@ def draw_character_selection(high_score):
     screen.blit(warrior_img, (warrior_rect.centerx - 60, warrior_rect.top + 30))
 
     # B info
-    warrior_title = font_medium.render("B", True, (255, 150, 150))
+    warrior_title = font_medium.render("Nathen", True, (255, 150, 150))
     screen.blit(warrior_title, (warrior_rect.centerx - warrior_title.get_width() // 2, warrior_rect.top + 20))
 
     warrior_desc = [
@@ -1158,7 +1218,7 @@ def draw_character_selection(high_score):
     # Draw andy character
     andy_img = pygame.image.load("standing_sprite.png")
     andy_img = pygame.transform.scale(andy_img, (STAND_WIDTH * 1.8, STAND_HEIGHT * 1.8))
-    screen.blit(andy_img, (rogue_rect.centerx - 50, rogue_rect.top + 70))
+    screen.blit(andy_img, (rogue_rect.centerx - 50, rogue_rect.top + 75))
 
     # andy info
     rogue_title = font_medium.render("Andy", True, (150, 255, 200))
@@ -1186,7 +1246,7 @@ def draw_character_selection(high_score):
     screen.blit(mage_img, (mage_rect.centerx - 60, mage_rect.top + 30))
 
     # A info
-    mage_title = font_medium.render("A", True, (180, 180, 255))
+    mage_title = font_medium.render("Jesmo", True, (180, 180, 255))
     screen.blit(mage_title, (mage_rect.centerx - mage_title.get_width() // 2, mage_rect.top + 20))
 
     mage_desc = [
@@ -1301,6 +1361,7 @@ right_filename = ["First_Move_Right.png", "Second_Move_Right.png", "Third_Move_R
 enemies = None
 boss = None
 
+
 def reset():
     global enemies, boss
     # Create enemies (initial set)
@@ -1314,17 +1375,39 @@ def reset():
         Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
     ]
 
-# Add enemies to group
-# for enemy in enemies:
-#     enemy.set_platform_group(platform_group)
-#     enemy_group.add(enemy)
-#     all_sprites.add(enemy)
+# Create enemies (initial set)
+enemies = []
+for i in range(7):  # 创建7个敌人
+    x = random.randint(50, SCREEN_WIDTH - 50)
+    y = random.randint(SCREEN_HEIGHT - 400, SCREEN_HEIGHT - 100)
+    enemy_type = "warrior" if i % 2 == 0 else "drone"  # 交替创建不同类型
+
+    enemy = Enemy(x, y, enemy_type)
+    enemy.set_platform_group(platform_group)
+    enemy_group.add(enemy)
+    all_sprites.add(enemy)
+    enemies.append(enemy)
+
+
+
+
 
 # Create Boss
+
     boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
 # all_sprites.add(boss)
 # boss_group.add(boss)
 reset()
+
+
+
+# Create Boss
+
+boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+all_sprites.add(boss)
+boss_group.add(boss)
+
+
 # Create shop
 shop = Shop()
 
@@ -1352,6 +1435,9 @@ high_score = read_high_score()
 score_saved = False  # 标记分数是否已保存
 
 # Game main loop
+# Game main loop
+last_key_pressed = None
+
 running = True
 while running:
     # Event handling
@@ -1367,19 +1453,63 @@ while running:
                 shop.selected_index = (shop.selected_index - 1) % len(shop.items)
             elif event.key == K_s and shop.visible:
                 shop.selected_index = (shop.selected_index + 1) % len(shop.items)
+
+            # 首先处理角色选择按键
+            elif game_state == "character_selection":
+                if event.key == K_1:
+                    last_key_pressed = K_1
+                    selected_character = "Nathen"  # 立即设置角色
+                    if pygame.mixer.get_init() and select_sound:
+                        select_sound.play()
+                elif event.key == K_2:
+                    last_key_pressed = K_2
+                    selected_character = "andy"  # 立即设置角色
+                    if pygame.mixer.get_init() and select_sound:
+                        select_sound.play()
+                elif event.key == K_3:
+                    last_key_pressed = K_3
+                    selected_character = "Jesmo"  # 立即设置角色
+                    if pygame.mixer.get_init() and select_sound:
+                        select_sound.play()
+                # 处理空格键开始游戏
+                elif event.key == K_SPACE and selected_character:
+                    # 开始游戏
+                    if game_state != "playing":
+                        game_state = "playing"
+                        if pygame.mixer.get_init() and select_sound:
+                            select_sound.play()
+
+                        # Create player if not created
+                        if selected_character and not player:
+                            if selected_character == "Nathen":
+                                player = PlayerNathaniel(100, SCREEN_HEIGHT - 100)
+                            elif selected_character == "andy":
+                                player = PlayerAndy(100, SCREEN_HEIGHT - 100)
+                            elif selected_character == "Jesmo":
+                                player = PlayerJesmo(100, SCREEN_HEIGHT - 100)
+
+                            if player:
+                                player.set_groups(platform_group, enemy_group, boss_group)
+                                player.badguys = enemies
+                                all_sprites.add(player)
+
+                                if boss:
+                                    boss.set_references(player, bullet_group)
+
+            # 然后处理其他空格键事件
             elif event.key == K_SPACE:
                 if game_state == "start_menu":
                     game_state = "character_selection"
-                elif game_state == "character_selection" and selected_character:
-                    game_state = "playing"
                 elif shop.visible:
                     shop.purchase(player)
+
             elif event.key == K_r and (game_state == "game_over" or game_state == "victory"):
                 # Restart game
                 game_state = "character_selection"
                 selected_character = None
                 player = None
                 score_saved = False
+                last_key_pressed = None  # 重置按键记录
 
                 # Clear all groups
                 all_sprites.empty()
@@ -1394,35 +1524,10 @@ while running:
                     platform_group.add(platform)
                     all_sprites.add(platform)
 
-                # Recreate enemies
-                # for enemy in enemies:
-                #     enemy.set_platform_group(platform_group)
-                #     enemy_group.add(enemy)
-                #     all_sprites.add(enemy)
                 reset()
-
-                # Recreate Boss
-                # boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-                # all_sprites.add(boss)
-                # boss_group.add(boss)
-
-                # Reset spawn timer
                 spawn_timer = 0
-
                 game_start_time = pygame.time.get_ticks()
-            elif game_state == "character_selection":
-                if event.key == K_1:
-                    selected_character = "B"
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
-                elif event.key == K_2:
-                    selected_character = "andy"
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
-                elif event.key == K_3:
-                    selected_character = "A"
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
+
             elif game_state == "victory" and not score_saved:
                 # 在胜利状态下处理保存分数
                 if event.key == K_y:  # 按Y键保存分数
@@ -1472,23 +1577,15 @@ while running:
         draw_character_selection(high_score)
 
         # Highlight selected character
-        if selected_character:
+        if last_key_pressed:
+            if selected_character == "Nathen":
+                char_name = "Nathen"
+            elif selected_character == "Andy":
+                char_name = "andy"
+            elif selected_character == "Jesmo":
+                char_name = "Jesmo"
             text = font_medium.render(f"Selected: {selected_character.upper()}", True, (255, 215, 0))
             screen.blit(text, (SCREEN_WIDTH // 2 - text.get_width() // 2, SCREEN_HEIGHT - 160))
-
-        # Create player if not created
-        if selected_character and not player:
-            if selected_character == "B":
-                player = PlayerNathaniel(100, SCREEN_HEIGHT - 100)
-            elif selected_character == "andy":
-                player = PlayerAndy(100, SCREEN_HEIGHT - 100)
-            elif selected_character == "A":
-                player = PlayerA(100, SCREEN_HEIGHT - 100)
-
-            if player:
-                player.set_groups(platform_group, enemy_group, boss_group)
-                player.badguys = enemies
-                all_sprites.add(player)
 
     elif game_state == "playing" and player:
         # Draw all sprites
@@ -1496,10 +1593,12 @@ while running:
         bullet_group.draw(screen)
         coin_group.draw(screen)
 
+
         for enemy in enemies:
             enemy.move(platform_group.sprites())
             enemy.animate()
             enemy.draw()
+
 
         boss.update()
 
@@ -1587,7 +1686,7 @@ while running:
                 })
 
         # Detect bullets hitting player - INCREASED DAMAGE
-        if pygame.sprite.spritecollide(player, bullet_group, True):
+        if player and pygame.sprite.spritecollide(player, bullet_group, True):
             player.health -= 8  # Increased from 4 to 8
             player.hurt_timer = 10
             if player.health < 0:
