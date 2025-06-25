@@ -167,6 +167,7 @@ class Player(pygame.sprite.Sprite):
                     self.velocity.y = 0
                     self.jumping = False
 
+
         # Boundary check     # AI
         if self.rect.left < 0:
             self.rect.left = 0
@@ -617,8 +618,8 @@ class Enemy(pygame.sprite.Sprite):
 class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((80, 110), pygame.SRCALPHA)
-        self._draw_boss()
+        self.image = pygame.image.load("boss_chilling.png")
+        self.image = pygame.transform.scale(self.image, (STAND_WIDTH*3, STAND_HEIGHT*3))
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.velocity = pygame.math.Vector2(0, 0)
         self.health = 300
@@ -636,41 +637,6 @@ class Boss(pygame.sprite.Sprite):
         self.player = player
         self.bullet_group = bullet_group
 
-    def _draw_boss(self):
-        # Draw improved astronaut body
-        pygame.draw.rect(self.image, (220, 220, 220), (20, 40, 40, 50))  # Body
-        pygame.draw.rect(self.image, (180, 180, 180), (20, 40, 40, 50), 2)  # Outline
-
-        # Draw armor plates
-        pygame.draw.rect(self.image, (100, 100, 150), (15, 30, 50, 15))
-        pygame.draw.rect(self.image, (80, 80, 130), (15, 30, 50, 15), 1)
-
-        # Draw helmet with visor
-        pygame.draw.circle(self.image, (230, 230, 250), (40, 25), 22)  # Helmet
-        pygame.draw.circle(self.image, (200, 200, 220), (40, 25), 22, 2)  # Helmet outline
-
-        # Visor with reflection
-        pygame.draw.rect(self.image, (100, 150, 220), (20, 10, 40, 20))
-        pygame.draw.rect(self.image, (70, 120, 200), (20, 10, 40, 20), 1)
-        pygame.draw.ellipse(self.image, (180, 220, 255), (45, 12, 10, 8))
-
-        # Evil glowing eyes
-        pygame.draw.circle(self.image, (255, 80, 80), (30, 20), 6)
-        pygame.draw.circle(self.image, (255, 180, 100), (30, 20), 3)
-        pygame.draw.circle(self.image, (255, 80, 80), (50, 20), 6)
-        pygame.draw.circle(self.image, (255, 180, 100), (50, 20), 3)
-
-        # Backpack with thrusters
-        pygame.draw.rect(self.image, (80, 80, 100), (10, 45, 20, 35))
-        pygame.draw.rect(self.image, (60, 60, 80), (10, 45, 20, 35), 1)
-
-        # Thrusters
-        pygame.draw.rect(self.image, (180, 100, 80), (12, 75, 6, 15))
-        pygame.draw.rect(self.image, (180, 100, 80), (22, 75, 6, 15))
-
-        # Energy weapon
-        pygame.draw.rect(self.image, (180, 80, 220), (55, 50, 20, 10))
-        pygame.draw.rect(self.image, (150, 60, 200), (55, 50, 20, 10), 1)
 
 
 
