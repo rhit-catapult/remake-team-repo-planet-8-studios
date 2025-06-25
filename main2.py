@@ -1253,16 +1253,15 @@ def draw_character_selection(high_score):
         text = font_tiny.render(line, True, (200, 255, 200))
         screen.blit(text, (rogue_rect.centerx - text.get_width() // 2, rogue_rect.top + 230 + i * 40))
 
-    # A panel
+    # Jesmo panel
     mage_rect = pygame.Rect(SCREEN_WIDTH // 2 + char_width // 2 + spacing, 150, char_width, char_height)
     pygame.draw.rect(screen, (40, 20, 60, 220), mage_rect, border_radius=15)
     pygame.draw.rect(screen, (100, 100, 200), mage_rect, 4, border_radius=15)
 
-    # Draw A character
-    mage_img = pygame.Surface((120, 180), pygame.SRCALPHA)
-    pygame.draw.ellipse(mage_img, (100, 100, 200), (10, 30, 100, 120))
-    pygame.draw.ellipse(mage_img, (70, 70, 180), (10, 30, 100, 120), 2)
-    screen.blit(mage_img, (mage_rect.centerx - 60, mage_rect.top + 30))
+    # Draw Jesmo character
+    Jesmo_img = pygame.image.load("mage_sprite.png")
+    Jesmo_img = pygame.transform.scale(Jesmo_img, (STAND_WIDTH * 1.8, STAND_HEIGHT * 2))
+    screen.blit(Jesmo_img, (mage_rect.centerx - 60, mage_rect.top + 65))
 
     # A info
     mage_title = font_medium.render("Jesmo", True, (180, 180, 255))
@@ -1393,6 +1392,10 @@ def reset():
         Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
         Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
     ]
+    boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+    all_sprites.add(boss)
+    boss_group.add(boss)
+
 
 # Create enemies (initial set)
 enemies = []
@@ -1413,9 +1416,9 @@ for i in range(7):  # 创建7个敌人
 
 # Create Boss
 
-    boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-# all_sprites.add(boss)
-# boss_group.add(boss)
+boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+all_sprites.add(boss)
+boss_group.add(boss)
 reset()
 
 
@@ -1741,6 +1744,7 @@ while running:
         if player.health <= 0:
             game_state = "game_over"
         elif not boss.alive:
+            print("boss dead")
             game_state = "victory"
 
     elif game_state == "game_over":
