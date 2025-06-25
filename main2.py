@@ -616,8 +616,40 @@ class Boss(pygame.sprite.Sprite):
         self.bullet_group = bullet_group
 
     def _draw_boss(self):
-        if self.direction == 'neutral':
-            self.screen.blit(self.stand, (self.x, self.y))
+        # Draw improved astronaut body
+        pygame.draw.rect(self.image, (220, 220, 220), (20, 40, 40, 50))  # Body
+        pygame.draw.rect(self.image, (180, 180, 180), (20, 40, 40, 50), 2)  # Outline
+
+        # Draw armor plates
+        pygame.draw.rect(self.image, (100, 100, 150), (15, 30, 50, 15))
+        pygame.draw.rect(self.image, (80, 80, 130), (15, 30, 50, 15), 1)
+
+        # Draw helmet with visor
+        pygame.draw.circle(self.image, (230, 230, 250), (40, 25), 22)  # Helmet
+        pygame.draw.circle(self.image, (200, 200, 220), (40, 25), 22, 2)  # Helmet outline
+
+        # Visor with reflection
+        pygame.draw.rect(self.image, (100, 150, 220), (20, 10, 40, 20))
+        pygame.draw.rect(self.image, (70, 120, 200), (20, 10, 40, 20), 1)
+        pygame.draw.ellipse(self.image, (180, 220, 255), (45, 12, 10, 8))
+
+        # Evil glowing eyes
+        pygame.draw.circle(self.image, (255, 80, 80), (30, 20), 6)
+        pygame.draw.circle(self.image, (255, 180, 100), (30, 20), 3)
+        pygame.draw.circle(self.image, (255, 80, 80), (50, 20), 6)
+        pygame.draw.circle(self.image, (255, 180, 100), (50, 20), 3)
+
+        # Backpack with thrusters
+        pygame.draw.rect(self.image, (80, 80, 100), (10, 45, 20, 35))
+        pygame.draw.rect(self.image, (60, 60, 80), (10, 45, 20, 35), 1)
+
+        # Thrusters
+        pygame.draw.rect(self.image, (180, 100, 80), (12, 75, 6, 15))
+        pygame.draw.rect(self.image, (180, 100, 80), (22, 75, 6, 15))
+
+        # Energy weapon
+        pygame.draw.rect(self.image, (180, 80, 220), (55, 50, 20, 10))
+        pygame.draw.rect(self.image, (150, 60, 200), (55, 50, 20, 10), 1)
 
 
 
@@ -1328,7 +1360,7 @@ right_filename = ["First_Move_Right.png", "Second_Move_Right.png", "Third_Move_R
 enemies = None
 boss = None
 
-<<<<<<< Updated upstream
+
 def reset():
     global enemies, boss
     # Create enemies (initial set)
@@ -1341,7 +1373,7 @@ def reset():
         Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
         Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
     ]
-=======
+
 # Create enemies (initial set)
 enemies = []
 for i in range(7):  # 创建7个敌人
@@ -1355,21 +1387,26 @@ for i in range(7):  # 创建7个敌人
     all_sprites.add(enemy)
     enemies.append(enemy)
 
->>>>>>> Stashed changes
+
+
 
 
 # Create Boss
-<<<<<<< Updated upstream
+
     boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
 # all_sprites.add(boss)
 # boss_group.add(boss)
 reset()
-=======
+
+
+
+# Create Boss
+
 boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
 all_sprites.add(boss)
 boss_group.add(boss)
 
->>>>>>> Stashed changes
+
 # Create shop
 shop = Shop()
 
@@ -1543,15 +1580,14 @@ while running:
         all_sprites.draw(screen)
         bullet_group.draw(screen)
         coin_group.draw(screen)
-<<<<<<< Updated upstream
+
 
         for enemy in enemies:
             enemy.move(platform_group.sprites())
             enemy.animate()
             enemy.draw()
 
-=======
->>>>>>> Stashed changes
+
         boss.update()
 
         # Draw player
