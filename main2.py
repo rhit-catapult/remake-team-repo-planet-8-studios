@@ -1271,13 +1271,13 @@ right_filename = ["First_Move_Right.png", "Second_Move_Right.png", "Third_Move_R
 
 # Create enemies (initial set)
 enemies = [
-    Badguy(screen, 290, 170, 100, 56, left_filename, right_filename),
-    Badguy(screen, 490, 220, 100, 56, left_filename, right_filename),
-    Badguy(screen, 840, 270, 100, 56, left_filename, right_filename),
-    Badguy(screen, 140, 320, 100, 56, left_filename, right_filename),
-    Badguy(screen, 640, 370, 100, 56, left_filename, right_filename),
-    Badguy(screen, 340, 520, 100, 56, left_filename, right_filename),
-    Badguy(screen, 750, 570, 100, 56, left_filename, right_filename),
+    Badguy(screen, 290, 170, 80, 46, left_filename, right_filename),
+    Badguy(screen, 490, 220, 80, 46, left_filename, right_filename),
+    Badguy(screen, 840, 270, 80, 46, left_filename, right_filename),
+    Badguy(screen, 140, 320, 80, 46, left_filename, right_filename),
+    Badguy(screen, 640, 370, 80, 46, left_filename, right_filename),
+    Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
+    Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
 ]
 
 # Add enemies to group
