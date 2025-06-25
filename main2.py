@@ -23,14 +23,6 @@ BOSS_BULLET_SPEED = 6
 # Image dimensions
 STAND_HEIGHT = 80
 STAND_WIDTH = 56
-LR_HEIGHT = 80
-LR_WIDTH = 80
-RR_HEIGHT = 80
-RR_WIDTH = 80
-RL_HEIGHT = 80
-RL_WIDTH = 80
-LL_HEIGHT = 80
-LL_WIDTH = 80
 
 # Color definitions
 BLACK = (0, 0, 0)
@@ -473,31 +465,15 @@ class PlayerAndy(Player):
 class PlayerJesmo(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
-        self.image = pygame.Surface((40, 60))
-        self._draw_jesmo()
-        self.character_type = "A"
-        self.push_cooldown = 40  # Shorter cooldown for psychic push
+        self.image = pygame.image.load("mage_sprite.png")
+        self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
+        self._draw_andy()
+        self.character_type = "Jesmo"
+        self.speed_level = 1.3  # Faster speed
 
-    def _draw_jesmo(self):
-        # Draw mage body
-        pygame.draw.ellipse(self.image, (100, 100, 200), (5, 10, 30, 40))  # Body
-        pygame.draw.ellipse(self.image, (70, 70, 180), (5, 10, 30, 40), 2)  # Outline
-        pygame.draw.circle(self.image, (100, 100, 200), (20, 8), 8)  # Head
-        pygame.draw.circle(self.image, (70, 70, 180), (20, 8), 8, 2)  # Head outline
-
-        # Draw eyes
-        pygame.draw.circle(self.image, (200, 200, 100), (15, 6), 3)
-        pygame.draw.circle(self.image, (200, 200, 100), (25, 6), 3)
-
-        # Draw robe
-        robe_color = (150, 50, 200)
-        pygame.draw.polygon(self.image, robe_color, [(0, 50), (40, 50), (30, 60), (10, 60)])
-        pygame.draw.polygon(self.image, (120, 30, 170), [(0, 50), (40, 50), (30, 60), (10, 60)], 2)
-
-        # Draw staff
-        pygame.draw.rect(self.image, (200, 200, 220), (18, 5, 4, 45))
-        pygame.draw.circle(self.image, (255, 215, 0), (20, 5), 8)
-        pygame.draw.circle(self.image, (200, 170, 50), (20, 5), 8, 1)
+    def _draw_andy(self):
+        if self.direction == 'neutral':
+            self.screen.blit(self.stand, (self.x, self.y))
 
 
 # Enemy class (cool alien creatures)
