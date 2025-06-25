@@ -133,6 +133,7 @@ class Player(pygame.sprite.Sprite):
         self.lightsaber_active = False
         self.lightsaber_timer = 0
         self.character_type = "base"
+        self.badguys = []
 
     def set_groups(self, platform_group, enemy_group, boss_group):  # AI
         self.platform_group = platform_group
@@ -222,6 +223,14 @@ class Player(pygame.sprite.Sprite):
                     if self.health < 0:
                         self.health = 0
 
+            for enemy in self.badguys:
+                if self.rect.colliderect(enemy.get_rect()) and enemy.alive:
+                    self.health -= 1.5  # Increased from 0.15 to 1.5
+                    self.hurt_timer = 5
+                    self.invulnerable = 15
+                    if self.health < 0:
+                        self.health = 0
+
         # Hurt effect timer
         if self.hurt_timer > 0:
             self.hurt_timer -= 1
@@ -253,6 +262,27 @@ class Player(pygame.sprite.Sprite):
                         'size': random.randint(2, 5),
                         'life': 20
                     })
+
+        for enemy in self.badguys:
+            # print("blah")
+            if attack_rect.colliderect(enemy.get_rect()) and enemy.alive:
+                enemy.take_damage(10 * self.damage_level)
+                self.score += 10
+                if pygame.mixer.get_init():
+                    sword_sound.play()
+
+                # Create attack particle effect
+                for _ in range(5):
+                    particle_group.append({
+                        'x': attack_rect.centerx,
+                        'y': attack_rect.centery,
+                        'vx': random.uniform(-2, 2),
+                        'vy': random.uniform(-2, 2),
+                        'color': (100, 200, 255),
+                        'size': random.randint(2, 5),
+                        'life': 20
+                    })
+
 
         # Check if attack hits boss
         for boss in self.boss_group:
@@ -1117,8 +1147,8 @@ def draw_character_selection(high_score):
     ]
 
     for i, line in enumerate(warrior_desc):
-        text = font_small.render(line, True, (255, 200, 200))
-        screen.blit(text, (warrior_rect.centerx - text.get_width() // 2, warrior_rect.top + 220 + i * 40))
+        text = font_tiny.render(line, True, (255, 200, 200))
+        screen.blit(text, (warrior_rect.centerx - text.get_width() // 2, warrior_rect.top + 230 + i * 40))
 
     # andy panel
     rogue_rect = pygame.Rect(SCREEN_WIDTH // 2 - char_width // 2, 150, char_width, char_height)
@@ -1126,10 +1156,9 @@ def draw_character_selection(high_score):
     pygame.draw.rect(screen, (50, 200, 80), rogue_rect, 4, border_radius=15)
 
     # Draw andy character
-    rogue_img = pygame.Surface((120, 180), pygame.SRCALPHA)
-    pygame.draw.ellipse(rogue_img, (50, 200, 80), (10, 30, 100, 120))
-    pygame.draw.ellipse(rogue_img, (30, 150, 50), (10, 30, 100, 120), 2)
-    screen.blit(rogue_img, (rogue_rect.centerx - 60, rogue_rect.top + 30))
+    andy_img = pygame.image.load("standing_sprite.png")
+    andy_img = pygame.transform.scale(andy_img, (STAND_WIDTH * 1.8, STAND_HEIGHT * 1.8))
+    screen.blit(andy_img, (rogue_rect.centerx - 50, rogue_rect.top + 70))
 
     # andy info
     rogue_title = font_medium.render("Andy", True, (150, 255, 200))
@@ -1142,8 +1171,8 @@ def draw_character_selection(high_score):
     ]
 
     for i, line in enumerate(rogue_desc):
-        text = font_small.render(line, True, (200, 255, 200))
-        screen.blit(text, (rogue_rect.centerx - text.get_width() // 2, rogue_rect.top + 220 + i * 40))
+        text = font_tiny.render(line, True, (200, 255, 200))
+        screen.blit(text, (rogue_rect.centerx - text.get_width() // 2, rogue_rect.top + 230 + i * 40))
 
     # A panel
     mage_rect = pygame.Rect(SCREEN_WIDTH // 2 + char_width // 2 + spacing, 150, char_width, char_height)
@@ -1167,8 +1196,8 @@ def draw_character_selection(high_score):
     ]
 
     for i, line in enumerate(mage_desc):
-        text = font_small.render(line, True, (220, 220, 255))
-        screen.blit(text, (mage_rect.centerx - text.get_width() // 2, mage_rect.top + 220 + i * 40))
+        text = font_tiny.render(line, True, (220, 220, 255))
+        screen.blit(text, (mage_rect.centerx - text.get_width() // 2, mage_rect.top + 230 + i * 40))
 
     # Start prompt
     start_text = font_medium.render("Press SPACE to Start", True, (100, 255, 100))
@@ -1269,17 +1298,21 @@ for platform in platforms:
 left_filename = ["First_Move_Left.png", "Second_Move_Left.png", "Third_Move_Left.png", "Fourth_Move_Left.png"]
 right_filename = ["First_Move_Right.png", "Second_Move_Right.png", "Third_Move_Right.png", "Fourth_Move_Right.png"]
 
+enemies = None
+boss = None
 
-# Create enemies (initial set)
-enemies = [
-    Badguy(screen, 290, 170, 80, 46, left_filename, right_filename),
-    Badguy(screen, 490, 220, 80, 46, left_filename, right_filename),
-    Badguy(screen, 840, 270, 80, 46, left_filename, right_filename),
-    Badguy(screen, 140, 320, 80, 46, left_filename, right_filename),
-    Badguy(screen, 640, 370, 80, 46, left_filename, right_filename),
-    Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
-    Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
-]
+def reset():
+    global enemies, boss
+    # Create enemies (initial set)
+    enemies = [
+        Badguy(screen, 290, 170, 80, 46, left_filename, right_filename),
+        Badguy(screen, 490, 220, 80, 46, left_filename, right_filename),
+        Badguy(screen, 840, 270, 80, 46, left_filename, right_filename),
+        Badguy(screen, 140, 320, 80, 46, left_filename, right_filename),
+        Badguy(screen, 640, 370, 80, 46, left_filename, right_filename),
+        Badguy(screen, 340, 520, 80, 46, left_filename, right_filename),
+        Badguy(screen, 750, 570, 80, 46, left_filename, right_filename),
+    ]
 
 # Add enemies to group
 # for enemy in enemies:
@@ -1288,10 +1321,10 @@ enemies = [
 #     all_sprites.add(enemy)
 
 # Create Boss
-boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+    boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
 # all_sprites.add(boss)
 # boss_group.add(boss)
-
+reset()
 # Create shop
 shop = Shop()
 
@@ -1362,15 +1395,16 @@ while running:
                     all_sprites.add(platform)
 
                 # Recreate enemies
-                for enemy in enemies:
-                    enemy.set_platform_group(platform_group)
-                    enemy_group.add(enemy)
-                    all_sprites.add(enemy)
+                # for enemy in enemies:
+                #     enemy.set_platform_group(platform_group)
+                #     enemy_group.add(enemy)
+                #     all_sprites.add(enemy)
+                reset()
 
                 # Recreate Boss
-                boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-                all_sprites.add(boss)
-                boss_group.add(boss)
+                # boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+                # all_sprites.add(boss)
+                # boss_group.add(boss)
 
                 # Reset spawn timer
                 spawn_timer = 0
@@ -1453,6 +1487,7 @@ while running:
 
             if player:
                 player.set_groups(platform_group, enemy_group, boss_group)
+                player.badguys = enemies
                 all_sprites.add(player)
 
     elif game_state == "playing" and player:
@@ -1465,7 +1500,6 @@ while running:
             enemy.move(platform_group.sprites())
             enemy.animate()
             enemy.draw()
-            print(f"{enemy.get_rect().x} {enemy.get_rect().y}")
 
         boss.update()
 
