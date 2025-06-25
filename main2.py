@@ -830,8 +830,8 @@ class Boss(pygame.sprite.Sprite):
                          border_radius=5)
 
         # Draw health text
-        health_text = font_medium.render(f"Health bar: {int(self.health)}/{self.max_health}", True, WHITE)
-        surface.blit(health_text, (SCREEN_WIDTH // 2 - health_text.get_width() // 2, 50))
+        #health_text = font_medium.render(f"Health bar: {int(self.health)}/{self.max_health}", True, WHITE)
+        #surface.blit(health_text, (SCREEN_WIDTH // 2 - health_text.get_width() // 2, 50))
 
 
 # Boss bullet class
@@ -1409,7 +1409,7 @@ game_start_time = pygame.time.get_ticks()
 
 # Enemy spawn variables
 spawn_timer = 0
-max_enemies = 150
+max_enemies = 300
 enemy_types = ["drone", "warrior"]
 
 # Character selection
@@ -1663,7 +1663,7 @@ while running:
             all_sprites.add(new_enemy)
 
             # Reset spawn timer (1-3 seconds)
-            spawn_timer = random.randint(60, 180)
+            spawn_timer = random.randint(30, 120)
 
         # Detect coin collection
         coins_collected = pygame.sprite.spritecollide(player, coin_group, True)
