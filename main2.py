@@ -12,6 +12,15 @@ from enemies import Badguy
 pygame.init()
 pygame.mixer.init()
 
+
+# background music
+try:
+    pygame.mixer.music.load("Martin O'Donnell - On A Pale Horse.wav")
+    pygame.mixer.music.play(-1)  # -1表示循环播放
+    pygame.mixer.music.set_volume(0.046)  # 设置音量
+except:
+    print("fail")
+
 # Game constants
 SCREEN_WIDTH = 1400
 SCREEN_HEIGHT = 1000
@@ -112,8 +121,8 @@ class Player(pygame.sprite.Sprite):
         self.velocity = pygame.math.Vector2(0, 0)
         self.speed = PLAYER_SPEED
         self.jumping = False
-        self.health = 120
-        self.max_health = 120
+        self.health = 250
+        self.max_health = 250
         self.direction = 1  # 1=right, -1=left
         self.attack_cooldown = 0
         self.push_cooldown = 0
@@ -152,8 +161,10 @@ class Player(pygame.sprite.Sprite):
         if keys[K_w] and not self.jumping:  # Jump
             self.velocity.y = JUMP_POWER
             self.jumping = True
-            if pygame.mixer.get_init():
-                jump_sound.play()
+
+
+
+
 
         # Apply gravity
         self.velocity.y += GRAVITY
@@ -245,8 +256,7 @@ class Player(pygame.sprite.Sprite):
             if attack_rect.colliderect(enemy.rect) and enemy.alive:
                 enemy.take_damage(10 * self.damage_level)
                 self.score += 10
-                if pygame.mixer.get_init():
-                    sword_sound.play()
+
 
                 # Create attack particle effect
                 for _ in range(5):
@@ -265,8 +275,7 @@ class Player(pygame.sprite.Sprite):
             if attack_rect.colliderect(enemy.get_rect()) and enemy.alive:
                 enemy.take_damage(10 * self.damage_level)
                 self.score += 10
-                if pygame.mixer.get_init():
-                    sword_sound.play()
+
 
                 # Create attack particle effect
                 for _ in range(5):
@@ -286,8 +295,7 @@ class Player(pygame.sprite.Sprite):
             if attack_rect.colliderect(boss.rect) and boss.alive:
                 boss.take_damage(15 * self.damage_level)
                 self.score += 20
-                if pygame.mixer.get_init():
-                    sword_sound.play()
+
 
                 # Create boss hit particle effect
                 for _ in range(10):
@@ -331,8 +339,7 @@ class Player(pygame.sprite.Sprite):
                 enemy.velocity.y = -5
                 enemy.take_damage(5)
                 self.score += 5
-                if pygame.mixer.get_init():
-                    push_sound.play()
+
 
                 # Create push particle effect
                 for _ in range(10):
@@ -367,8 +374,7 @@ class Player(pygame.sprite.Sprite):
                     enemy.take_damage(5)
                 self.score += 5
 
-                if pygame.mixer.get_init():
-                    push_sound.play()
+
 
                 # Create push particle effect
                 for _ in range(10):
@@ -393,8 +399,7 @@ class Player(pygame.sprite.Sprite):
                 boss.velocity.y = -3
                 boss.take_damage(8)
                 self.score += 15
-                if pygame.mixer.get_init():
-                    push_sound.play()
+
 
                 # Create boss push particle effect
                 for _ in range(15):
@@ -440,6 +445,8 @@ class Player(pygame.sprite.Sprite):
 class PlayerNathaniel(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
+        # 将矩形大小改为与图像一致
+        self.rect = pygame.Rect(x, y, STAND_WIDTH, STAND_HEIGHT)
         self.image = pygame.image.load("warrior_sprite.png")
         self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
         self._draw_andy()
@@ -456,6 +463,7 @@ class PlayerAndy(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
         self.image = pygame.image.load("standing_sprite.png")
+        self.rect = pygame.Rect(x, y, STAND_WIDTH, STAND_HEIGHT)
         self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
         self._draw_andy()
         self.character_type = "Andy"
@@ -470,6 +478,7 @@ class PlayerAndy(Player):
 class PlayerJesmo(Player):
     def __init__(self, x, y):
         super().__init__(x, y)
+        self.rect = pygame.Rect(x, y, STAND_WIDTH, STAND_HEIGHT)
         self.image = pygame.image.load("mage_sprite.png")
         self.image = pygame.transform.scale(self.image, (STAND_WIDTH, STAND_HEIGHT))
         self._draw_andy()
@@ -586,8 +595,7 @@ class Enemy(pygame.sprite.Sprite):
         if self.health <= 0:
             self.alive = False
             self.image.set_alpha(100)
-            if pygame.mixer.get_init():
-                death_sound.play()
+
 
             # Drop coins based on enemy type
             if self.enemy_type == "drone":
@@ -626,8 +634,8 @@ class Boss(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (STAND_WIDTH*3, STAND_HEIGHT*3))
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.velocity = pygame.math.Vector2(0, 0)
-        self.health = 15000
-        self.max_health = 15000
+        self.health = 1500
+        self.max_health = 1500
         self.attack_timer = 0
         self.next_attack_time = 0
         self.phase = 1
@@ -666,7 +674,7 @@ class Boss(pygame.sprite.Sprite):
                     self.bullet_group.add(bullet)
 
             # Phase 3: 追踪子弹
-            elif self.phase == 3:
+            elif self.phase == 30:
                 bullet = HomingBullet(
                     self.rect.centerx, self.rect.centery,
                     self.player
@@ -790,8 +798,6 @@ class Boss(pygame.sprite.Sprite):
         if self.health <= 0:
             self.alive = False
             self.image.set_alpha(100)
-            if pygame.mixer.get_init():
-                boss_death_sound.play()
 
             # Drop high-value coins
             for _ in range(20):
@@ -836,8 +842,8 @@ class Boss(pygame.sprite.Sprite):
                          border_radius=5)
 
         # Draw health text
-        #health_text = font_medium.render(f"Health bar: {int(self.health)}/{self.max_health}", True, WHITE)
-        #surface.blit(health_text, (SCREEN_WIDTH // 2 - health_text.get_width() // 2, 50))
+        health_text = font_medium.render(f"Health bar: {int(self.health)}/{self.max_health}", True, WHITE)
+        surface.blit(health_text, (SCREEN_WIDTH // 2 - health_text.get_width() // 2, 50))
 
 
 # Boss bullet class
@@ -1071,8 +1077,6 @@ class Shop:
             elif item["type"] == "speed":
                 player.speed_level += 0.3
 
-            if pygame.mixer.get_init():
-                purchase_sound.play()
             return True
 
         return False
@@ -1283,23 +1287,16 @@ def create_beep_sound(frequency=440, duration=100):
     return pygame.mixer.Sound(buffer=bytes(buf))
 
 
-# Create sounds
 try:
-    jump_sound = create_beep_sound(523, 100)  # C5
-    sword_sound = create_beep_sound(784, 50)  # G5
-    push_sound = create_beep_sound(262, 200)  # C4
-    gun_sound = create_beep_sound(392, 30)  # G4
-    shotgun_sound = create_beep_sound(196, 100)  # G3
-    laser_sound = create_beep_sound(1047, 20)  # C6
-    death_sound = create_beep_sound(110, 500)  # A2
-    boss_death_sound = create_beep_sound(55, 800)  # A1
-    purchase_sound = create_beep_sound(659, 100)  # E5
-    coin_sound = create_beep_sound(330, 50)  # E4
-    select_sound = create_beep_sound(330, 50)  # E4
+    # 所有音效设置为None
+    death_sound = boss_death_sound = jump_sound = sword_sound = push_sound = gun_sound = shotgun_sound = laser_sound = None
+    purchase_sound = coin_sound = select_sound = None
+
+
+
 except:
-    # If sound creation fails, set all to None
-    jump_sound = sword_sound = push_sound = gun_sound = shotgun_sound = laser_sound = None
-    death_sound = boss_death_sound = purchase_sound = coin_sound = select_sound = None
+    pass
+
 
 # Create game sprite groups
 all_sprites = pygame.sprite.Group()
@@ -1409,7 +1406,7 @@ game_start_time = pygame.time.get_ticks()
 
 # Enemy spawn variables
 spawn_timer = 0
-max_enemies = 500
+max_enemies = 1000000
 enemy_types = ["drone", "warrior"]
 
 # Character selection
@@ -1444,34 +1441,30 @@ while running:
                 if event.key == K_1:
                     last_key_pressed = K_1
                     selected_character = "Nathaniel"  # 立即设置角色
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
+
                 elif event.key == K_2:
                     last_key_pressed = K_2
                     selected_character = "andy"  # 立即设置角色
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
+
                 elif event.key == K_3:
                     last_key_pressed = K_3
                     selected_character = "Jesmo"  # 立即设置角色
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
+
                 # 处理空格键开始游戏
                 elif event.key == K_SPACE and selected_character:
                     # 开始游戏
                     if game_state != "playing":
                         game_state = "playing"
-                        if pygame.mixer.get_init() and select_sound:
-                            select_sound.play()
+
 
                         # Create player if not created
                         if selected_character and not player:
                             if selected_character == "Nathaniel":
-                                player = PlayerNathaniel(100, SCREEN_HEIGHT - 100)
+                                player = PlayerNathaniel(100, SCREEN_HEIGHT - 150)
                             elif selected_character == "andy":
-                                player = PlayerAndy(100, SCREEN_HEIGHT - 100)
+                                player = PlayerAndy(100, SCREEN_HEIGHT - 150)
                             elif selected_character == "Jesmo":
-                                player = PlayerJesmo(100, SCREEN_HEIGHT - 100)
+                                player = PlayerJesmo(100, SCREEN_HEIGHT - 150)
 
                             if player:
                                 player.set_groups(platform_group, enemy_group, boss_group)
@@ -1519,12 +1512,9 @@ while running:
                     save_high_score(player.score)
                     high_score = read_high_score()  # 更新最高分
                     score_saved = True
-                    if pygame.mixer.get_init() and purchase_sound:
-                        purchase_sound.play()
                 elif event.key == K_n:  # 按N键不保存
                     score_saved = True
-                    if pygame.mixer.get_init() and select_sound:
-                        select_sound.play()
+
 
     # Update star background
     for star in stars:
@@ -1673,8 +1663,7 @@ while running:
         for coin in coins_collected:
             player.coins += coin.value
             player.score += 5
-            if pygame.mixer.get_init() and coin_sound:
-                coin_sound.play()
+
 
             # Create coin collection particles
             for _ in range(5):
