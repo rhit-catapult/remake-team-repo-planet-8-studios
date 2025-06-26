@@ -47,6 +47,8 @@ font_large = pygame.font.SysFont("arial", 72, bold=True)
 font_medium = pygame.font.SysFont("arial", 48)
 font_small = pygame.font.SysFont("arial", 36)
 font_tiny = pygame.font.SysFont("arial", 24)
+font_tinylarge = pygame.font.SysFont("arial", 23)
+font_tinymedium = pygame.font.SysFont("arial", 17)
 font_tinytiny = pygame.font.SysFont("arial", 12)
 
 # 得分文件路径
@@ -622,8 +624,8 @@ class Boss(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (STAND_WIDTH*3, STAND_HEIGHT*3))
         self.rect = self.image.get_rect(midbottom=(x, y))
         self.velocity = pygame.math.Vector2(0, 0)
-        self.health = 300
-        self.max_health = 300
+        self.health = 15000
+        self.max_health = 15000
         self.attack_timer = 0
         self.phase = 1
         self.move_direction = 1
@@ -1112,8 +1114,8 @@ def draw_start_menu(high_score):
     ]
 
     for i, line in enumerate(story_lines):
-        text = font_tinytiny.render(line, True, (200, 200, 255))
-        screen.blit(text, (panel_rect.centerx - text.get_width() // 2, panel_rect.top + 85 + i * 35))
+        text = font_tinymedium.render(line, True, (200, 200, 255))
+        screen.blit(text, (panel_rect.centerx - text.get_width() // 2, panel_rect.top + 95 + i * 45))
 
 
     # Draw controls panel
@@ -1409,7 +1411,7 @@ game_start_time = pygame.time.get_ticks()
 
 # Enemy spawn variables
 spawn_timer = 0
-max_enemies = 150
+max_enemies = 500
 enemy_types = ["drone", "warrior"]
 
 # Character selection
@@ -1625,11 +1627,11 @@ while running:
         pygame.draw.rect(screen, (100, 70, 200),
                          (SCREEN_WIDTH - 230, 5, 200, 95), 2, border_radius=10)
 
-        score_text = font_small.render(f"Score: {player.score}", True, WHITE)
-        screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 50, 15))
+        score_text = font_tinylarge.render(f"Score: {player.score}", True, WHITE)
+        screen.blit(score_text, (SCREEN_WIDTH - score_text.get_width() - 50, 25))
 
-        coins_text = font_small.render(f"Coins: {player.coins}", True, (255, 215, 0))
-        screen.blit(coins_text, (SCREEN_WIDTH - coins_text.get_width() - 50, 50))
+        coins_text = font_tinylarge.render(f"Coins: {player.coins}", True, (255, 215, 0))
+        screen.blit(coins_text, (SCREEN_WIDTH - coins_text.get_width() - 50, 60))
 
         # Draw upgrade status
         upgrades_text = font_tiny.render(f"Dmg: {player.damage_level:.1f}x | Spd: {player.speed_level:.1f}x", True,
