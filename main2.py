@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import sys
 import random
@@ -627,6 +629,7 @@ class Boss(pygame.sprite.Sprite):
         self.health = 15000
         self.max_health = 15000
         self.attack_timer = 0
+        self.next_attack_time = 0
         self.phase = 1
         self.move_direction = 1
         self.move_timer = 0
@@ -643,7 +646,7 @@ class Boss(pygame.sprite.Sprite):
 
 
     def attack(self):
-        if self.player and self.bullet_group:
+        if game_state == "playing":
             # Phase 1: 单发子弹
             if self.phase == 1:
                 bullet = BossBullet(
@@ -738,7 +741,7 @@ class Boss(pygame.sprite.Sprite):
         self.attack_timer -= 1
         if self.attack_timer <= 0:
             self.attack()
-            self.attack_timer = 50 - (self.phase * 10)  # Faster attacks in later phases
+            self.attack_timer = 200 - (self.phase * 10)  # Faster attacks in later phases
 
             # 添加喷血效果（当玩家被击中时）
             if pygame.sprite.spritecollide(player, bullet_group, True):
@@ -763,10 +766,11 @@ class Boss(pygame.sprite.Sprite):
         if self.hurt_timer > 0:
             self.hurt_timer -= 1
             # Visual feedback - flash red when hurt
-            if self.hurt_timer % 3 == 0:
-                self.image.fill((255, 100, 100, 50), special_flags=pygame.BLEND_RGBA_ADD)
-            else:
-                self._draw_boss()  # AI
+            # if self.hurt_timer % 3 == 0:
+            #     self.image.fill((255, 100, 100, 50), special_flags=pygame.BLEND_RGBA_ADD)
+            # else:
+            #     pass
+                # self.dr/()  # AI
 
     def take_damage(self, damage):
         self.health -= damage
@@ -832,8 +836,8 @@ class Boss(pygame.sprite.Sprite):
                          border_radius=5)
 
         # Draw health text
-        health_text = font_medium.render(f"Health bar: {int(self.health)}/{self.max_health}", True, WHITE)
-        surface.blit(health_text, (SCREEN_WIDTH // 2 - health_text.get_width() // 2, 50))
+        #health_text = font_medium.render(f"Health bar: {int(self.health)}/{self.max_health}", True, WHITE)
+        #surface.blit(health_text, (SCREEN_WIDTH // 2 - health_text.get_width() // 2, 50))
 
 
 # Boss bullet class
@@ -1378,20 +1382,14 @@ for i in range(7):  # 创建7个敌人
 
 
 
+player = None
 
 
 # Create Boss
 
 boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
-all_sprites.add(boss)
-boss_group.add(boss)
 reset()
-
-
-
-# Create Boss
-
-boss = Boss(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 400)
+boss.set_references(player, bullet_group)
 all_sprites.add(boss)
 boss_group.add(boss)
 
@@ -1416,7 +1414,6 @@ enemy_types = ["drone", "warrior"]
 
 # Character selection
 selected_character = None
-player = None
 
 # High score management
 high_score = read_high_score()
@@ -1603,6 +1600,10 @@ while running:
 
 
         boss.update()
+        if time.time() > boss.next_attack_time:
+            boss.next_attack_time  = time.time() +1
+            boss.attack()
+
 
         # Draw player
         if player.hurt_timer > 0 and pygame.time.get_ticks() % 100 < 50:
@@ -1665,7 +1666,7 @@ while running:
             all_sprites.add(new_enemy)
 
             # Reset spawn timer (1-3 seconds)
-            spawn_timer = random.randint(60, 180)
+            spawn_timer = random.randint(30, 120)
 
         # Detect coin collection
         coins_collected = pygame.sprite.spritecollide(player, coin_group, True)
