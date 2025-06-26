@@ -41,7 +41,7 @@ UI_BG_COLOR = (20, 10, 40, 200)
 
 # Create game window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Space Jedi: Alien Avenger")
+pygame.display.set_caption("Defending Othryn")
 clock = pygame.time.Clock()
 
 # Load fonts
